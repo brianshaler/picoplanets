@@ -1,13 +1,13 @@
-w = 640
+w = 800
 h = 480
 rotation = 0
 planets = []
 
-planets.push new Planet	0,		0,		100
-planets.push new Planet	200,	-300,	60
-planets.push new Planet	-100,	-350,	60
-planets.push new Planet	300,	-600,	70
-planets.push new Planet	100,		-1000,		100
+planets.push new Planet	0, 0, 100
+planets.push new Planet	200, -300, 60
+planets.push new Planet	-100, -350, 60
+planets.push new Planet	300, -600, 70
+planets.push new Planet	100, -1000, 100
 
 player = new Player()
 player.y = -300
@@ -59,14 +59,31 @@ document.onkeydown = (e) ->
 	if !cont
 		e.preventDefault()
 
+setPixel = (s, pixels, i) ->
+	pixels.setPixel i, (s.color 0)
+	if Math.random() * 1000 < 2
+		pixels.setPixel i, (s.color 255, 255, 255)
+	
 
 sketch ->
 
 	@setup = =>
 		@size w, h
-		@background 255
+		@background 0
 		@noFill()
 		@frameRate 30
+		@standing = @loadImage("images/"+player.IMG_STANDING+".png")
+		@walking = @loadImage("images/"+player.IMG_WALKING+".png")
+		@squatting = @loadImage("images/"+player.IMG_SQUATTING+".png")
+		@flying = @loadImage("images/"+player.IMG_FLYING+".png")
+		@stars = @createImage(1000, 1000, @ARGB)
+		console.log "Processing.RGB"
+		console.log @ARGB
+		console.log @stars.pixels
+		p = @stars.pixels.toArray()
+		setPixel this, @stars.pixels, i for pixel, i in p
+		@stars.updatePixels();
+		this
 
 	@draw = =>
 		@background 0
