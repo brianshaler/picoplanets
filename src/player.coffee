@@ -6,16 +6,11 @@
 class Player
 	constructor: () ->
 		@currentImage = @IMG_STANDING
-		cnt = 0
+		@walkingImage = @IMG_WALKING
 		cb = =>
-			cnt++;
-			if cnt > 0
-				@walkingImage = @IMG_WALKING
-			else
-				@walkingImage = @IMG_STANDING
-			if cnt > 3
-				cnt = 0
-		setInterval cb, 1000
+			@switchWalk()
+			
+		setInterval cb, 200
 	
 	x: 0
 	y: 0
@@ -26,9 +21,9 @@ class Player
 	nearestPlanet: false
 	jumping: false
 	jumpVelocity: 0
-	maxJump: 50
+	maxJump: 40
 	minJump: 10
-	maxSpeed: 10
+	maxSpeed: 20
 	onGround: false
 	
 	IMG_STANDING: "standing"
@@ -67,8 +62,10 @@ class Player
 						@y = planet.y - (Math.sin angle) * planet.radius
 						@velocityX = 0
 						@velocityY = 0
-					if dist < 5
+					if dist < 10
 						@onGround = true
+						@velocityX *= .99
+						@velocityY *= .99
 		this
 	
 	move: () ->
@@ -77,7 +74,7 @@ class Player
 		d = new Date()
 		t = d.getTime()
 		if @onGround and !@jumping
-			if @velocityX + @velocityY > 2
+			if Math.abs(@velocityX) + Math.abs(@velocityY) > 0.1
 				@currentImage = @walkingImage
 			else
 				@currentImage = @IMG_STANDING
@@ -90,6 +87,12 @@ class Player
 		#@velocityX *= .1
 		#@velocityY *= .1
 		this
+	
+	switchWalk: () ->
+		if @walkingImage != @IMG_WALKING
+			@walkingImage = @IMG_WALKING
+		else
+			@walkingImage = @IMG_STANDING
 	
 	findNearestPlanet: (planets, log) ->
 		@nearestPlanet = planets[0]

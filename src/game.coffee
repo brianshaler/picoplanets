@@ -44,11 +44,11 @@ document.onkeydown = (e) ->
 		when KEY_LEFT
 			if key_dir != KEY_LEFT and player.onGround
 				#key_dir = KEY_LEFT
-				player.accel (window.rotation - Math.PI/2), 10, true
+				player.accel (window.rotation - Math.PI/2), 3, true
 		when KEY_RIGHT
 			if key_dir != KEY_RIGHT and player.onGround
 				#key_dir = KEY_RIGHT
-				player.accel (window.rotation + Math.PI/2), 10, true
+				player.accel (window.rotation + Math.PI/2), 3, true
 		when KEY_SPACE
 			if key_dir != KEY_SPACE and player.onGround
 				key_dir = KEY_SPACE
@@ -77,9 +77,6 @@ sketch ->
 		@squatting = @loadImage("images/"+player.IMG_SQUATTING+".png")
 		@flying = @loadImage("images/"+player.IMG_FLYING+".png")
 		@stars = @createImage(1000, 1000, @ARGB)
-		console.log "Processing.RGB"
-		console.log @ARGB
-		console.log @stars.pixels
 		p = @stars.pixels.toArray()
 		setPixel this, @stars.pixels, i for pixel, i in p
 		@stars.updatePixels();
