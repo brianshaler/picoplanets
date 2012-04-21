@@ -1,0 +1,21 @@
+<html>
+<head>
+	<title>Pico Planets</title>
+	<script type="text/javascript" src="processing-js/processing.js"></script>
+	
+	<script type="text/javascript">
+	var sketch = function (func) {
+	    var canvas = document.createElement('canvas');
+	    document.getElementById('canvas').appendChild(canvas);
+	    canvas.style.display = 'block';
+	    new Processing(canvas, function (processing) { func.call(processing); });
+	}
+	</script>
+</head>
+<body>
+	<div id="canvas"></div>
+	<p>When you're on a planet, you can use LEFT and RIGHT to walk around. Tap SPACE for a small jump, hold it to power up for a higher jump.</p>
+	<p>Be careful... Once you're in space, you have no control!</p>
+	<script type="text/javascript" src="lib/game.js"></script>
+</body>
+</html>

@@ -1,0 +1,90 @@
+w = 640
+h = 480
+rotation = 0
+planets = []
+
+planets.push new Planet	0,		0,		100
+planets.push new Planet	200,	-300,	60
+planets.push new Planet	-100,	-350,	60
+planets.push new Planet	300,	-600,	70
+planets.push new Planet	100,		-1000,		100
+
+player = new Player()
+player.y = -300
+
+galaxy = new Galaxy w, h, player, planets
+
+window.player = player
+window.galaxy = galaxy
+
+KEY_UP = 38
+KEY_DOWN = 40
+KEY_LEFT = 37
+KEY_RIGHT = 39
+KEY_SPACE = 32
+
+key_dir = -1
+
+document.onkeyup = (e) ->
+	if key_dir == KEY_SPACE
+		player.jump()
+	key_dir = -1
+
+document.onkeydown = (e) ->
+	cont = false
+	switch e.keyCode
+		when KEY_UP
+			if key_dir != KEY_UP and 1 == 2
+				key_dir = KEY_UP
+				player.accel (window.rotation - Math.PI), 10
+		when KEY_DOWN
+			if key_dir != KEY_DOWN and 1 == 2
+				key_dir = KEY_DOWN
+				player.accel (window.rotation), 10
+		when KEY_LEFT
+			if key_dir != KEY_LEFT and player.onGround
+				#key_dir = KEY_LEFT
+				player.accel (window.rotation - Math.PI/2), 10, true
+		when KEY_RIGHT
+			if key_dir != KEY_RIGHT and player.onGround
+				#key_dir = KEY_RIGHT
+				player.accel (window.rotation + Math.PI/2), 10, true
+		when KEY_SPACE
+			if key_dir != KEY_SPACE and player.onGround
+				key_dir = KEY_SPACE
+				player.startJumping()
+		else
+			cont = true
+			console.log e.keyCode
+	if !cont
+		e.preventDefault()
+
+
+sketch ->
+
+	@setup = =>
+		@size w, h
+		@background 255
+		@noFill()
+		@frameRate 30
+
+	@draw = =>
+		@background 0
+		nearestPlanet = player.findNearestPlanet galaxy.planets, false
+		window.nearestPlanet = nearestPlanet
+		idealRotation = (Math.PI/2 - Math.atan2 nearestPlanet.x - player.x, nearestPlanet.y - player.y)
+		diff = Math.abs idealRotation - rotation
+		if (Math.abs idealRotation - Math.PI*2 - rotation) < diff
+			idealRotation = idealRotation - Math.PI*2
+		if (Math.abs idealRotation + Math.PI*2 - rotation) < diff
+			idealRotation = idealRotation + Math.PI*2
+		rotation += (idealRotation - rotation) * .1
+		if rotation < 0
+			rotation += Math.PI*2
+		rotation = rotation % (Math.PI*2)
+		window.rotation = rotation
+		galaxy.rotation = rotation
+		galaxy.offsetX += (player.x - galaxy.offsetX) * .3
+		galaxy.offsetY += (player.y - galaxy.offsetY) * .3
+		player.move().calculatePhysics(galaxy.planets)
+		galaxy.draw this
