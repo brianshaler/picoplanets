@@ -10,7 +10,7 @@ class Player
 	nearestPlanet: false
 	jumping: false
 	jump_velocity: 0
-	max_jump: 40
+	max_jump: 50
 	min_jump: 5
 	max_speed: 10
 	onGround: false
@@ -73,7 +73,7 @@ class Player
 		cb = =>
 			#console.log "cb: "+@jump_velocity
 			@jump_velocity = if @jump_velocity + 1 < @max_jump then @jump_velocity + 1 else @max_jump
-			if @jumping then setTimeout cb, 10
+			if @jumping then setTimeout cb, 30
 		cb()
 	
 	jump: () ->
