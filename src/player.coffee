@@ -27,7 +27,7 @@ class Player
 	jumping: false
 	jumpVelocity: 0
 	maxJump: 50
-	minJump: 5
+	minJump: 10
 	maxSpeed: 10
 	onGround: false
 	
@@ -52,11 +52,11 @@ class Player
 		for planet in planets
 			do (planet) =>
 				dist = @distanceTo(planet)
-				if dist < planet.radius*2
+				if dist < planet.radius*3
 					if dist > 0
-						@velocityX *= .9
-						@velocityY *= .9
-						pull = (Math.sqrt (1 - (dist / (planet.radius*2))) * planet.radius*.2)
+						@velocityX *= .99
+						@velocityY *= .99
+						pull = (Math.sqrt (1 - (dist / (planet.radius*3))) * (planet.radius+100)*.05)
 						angle = Math.PI/2 - Math.atan2 planet.x-@x, planet.y-@y
 						@velocityX += (Math.cos angle) * pull
 						@velocityY += (Math.sin angle) * pull
