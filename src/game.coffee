@@ -13,6 +13,7 @@ player = new Player()
 player.y = -300
 
 galaxy = new Galaxy w, h, player, planets
+chrome = new Chrome w, h
 
 window.player = player
 window.galaxy = galaxy
@@ -44,10 +45,12 @@ document.onkeydown = (e) ->
 		when KEY_LEFT
 			if key_dir != KEY_LEFT and player.onGround
 				#key_dir = KEY_LEFT
+				player.direction = player.DIR_LEFT
 				player.accel (window.rotation - Math.PI/2), 3, true
 		when KEY_RIGHT
 			if key_dir != KEY_RIGHT and player.onGround
 				#key_dir = KEY_RIGHT
+				player.direction = player.DIR_RIGHT
 				player.accel (window.rotation + Math.PI/2), 3, true
 		when KEY_SPACE
 			if key_dir != KEY_SPACE and player.onGround
@@ -72,10 +75,13 @@ sketch ->
 		@background 0
 		@noFill()
 		@frameRate 30
-		@standing = @loadImage("images/"+player.IMG_STANDING+".png")
-		@walking = @loadImage("images/"+player.IMG_WALKING+".png")
-		@squatting = @loadImage("images/"+player.IMG_SQUATTING+".png")
-		@flying = @loadImage("images/"+player.IMG_FLYING+".png")
+		console.log @PFont.list()
+		@loadedFont = @loadFont("fonts/Audiowide-Regular.ttf")
+		imgs = [player.IMG_STANDING, player.IMG_WALKING, player.IMG_SQUATTING, player.IMG_FLYING]
+		dirs = [player.DIR_LEFT, player.DIR_RIGHT]
+		for img in imgs
+			for dir in dirs
+				this[img+"_"+dir] = @loadImage("images/spiff/"+img+"_"+dir+".png")
 		@stars = @createImage(1000, 1000, @ARGB)
 		p = @stars.pixels.toArray()
 		setPixel this, @stars.pixels, i for pixel, i in p
@@ -102,3 +108,4 @@ sketch ->
 		galaxy.offsetY += (player.y - galaxy.offsetY) * .3
 		player.move().calculatePhysics(galaxy.planets)
 		galaxy.draw this
+		chrome.draw this, player

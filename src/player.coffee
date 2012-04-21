@@ -5,6 +5,7 @@
 
 class Player
 	constructor: () ->
+		@direction = @DIR_RIGHT
 		@currentImage = @IMG_STANDING
 		@walkingImage = @IMG_WALKING
 		cb = =>
@@ -25,6 +26,9 @@ class Player
 	minJump: 10
 	maxSpeed: 20
 	onGround: false
+	
+	DIR_RIGHT: "right"
+	DIR_LEFT: "left"
 	
 	IMG_STANDING: "standing"
 	IMG_WALKING: "walking"
@@ -132,7 +136,7 @@ class Player
 		y = (Math.sin angle) * dist
 		x += @g.w/2
 		y += @g.h/2
-		@s.image @s[@currentImage], x-@width-2, y-@height
+		@s.image @s[@currentImage + "_" + @direction], x-@width-2, y-@height
 		#@s.noStroke()
 		#@s.fill 255, 0, 0
 		#@s.rect x-@width-2, y-@height, @width, @height
