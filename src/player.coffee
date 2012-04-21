@@ -64,20 +64,20 @@ class Player
 					@nearestPlanet = planet
 					nearestDistance = dist
 				else
-					console.log "Nope! " + @distanceTo(planet) + " > " + nearestDistance if log
+					#console.log "Nope! " + @distanceTo(planet) + " > " + nearestDistance if log
 		@nearestPlanet
 	
 	startJumping: () ->
 		@jumping = true
 		@jump_velocity = @min_jump
 		cb = =>
-			console.log "cb: "+@jump_velocity
+			#console.log "cb: "+@jump_velocity
 			@jump_velocity = if @jump_velocity + 1 < @max_jump then @jump_velocity + 1 else @max_jump
 			if @jumping then setTimeout cb, 10
 		cb()
 	
 	jump: () ->
-		console.log "Jump! "+@jump_velocity
+		#console.log "Jump! "+@jump_velocity
 		@accel (window.rotation - Math.PI), @jump_velocity
 		@jumping = false
 		@jump_velocity = @min_jump

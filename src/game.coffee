@@ -55,7 +55,7 @@ document.onkeydown = (e) ->
 				player.startJumping()
 		else
 			cont = true
-			console.log e.keyCode
+			#console.log e.keyCode
 	if !cont
 		e.preventDefault()
 
