@@ -18,6 +18,21 @@ levels = [
 	(new Level()).setStageSize(w, h)
 		.setPlayer(player)
 		.setPlanets([
+			(new Planet -50, -120, 70),
+			(new Planet 220, -40, 80),
+			(new Planet -100, 280, 70),
+			(new Planet 250, 260, 80)
+			(new Planet -50, 550, 80),
+		])
+		.setGoal(
+			new Planet 300, 650, 90
+		).setPosition({
+			x: -40, y: 0
+		}).setOxygen(1200)
+		.setJump(40),
+	(new Level()).setStageSize(w, h)
+		.setPlayer(player)
+		.setPlanets([
 			(new Planet -100, -450, 60),
 			(new Planet 100, -700, 70),
 			(new Planet 300, -1000, 100),
@@ -28,7 +43,7 @@ levels = [
 			new Planet 800, -850, 60
 		).setPosition({
 			x: 0, y: 0
-		}).setOxygen(1000)
+		}).setOxygen(1400)
 		.setJump(40),
 	(new Level()).setStageSize(w, h)
 		.setPlayer(player)
@@ -43,7 +58,7 @@ levels = [
 			new Planet -100, -950, 60
 		).setPosition({
 			x: 100, y: 600
-		}).setOxygen(1000)
+		}).setOxygen(1600)
 		.setJump(40)
 ]
 window.levels = levels

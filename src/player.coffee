@@ -192,5 +192,5 @@ class Player
 		this.activated = false
 		cb = =>
 			radio(this.FINISHED).broadcast()
-		setTimeout cb, 1000
+		setTimeout cb, 400
 		

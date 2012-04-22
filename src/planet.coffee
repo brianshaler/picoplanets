@@ -5,7 +5,7 @@ class Planet extends Mass
 	
 	setGoal: () ->
 		@goal = true
-		@color = [200, 255, 222]
+		@color = [140, 200, 150]
 		@markerColor = [0, 255, 0]
 	
 	setup: () ->
