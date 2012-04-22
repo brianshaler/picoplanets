@@ -15,6 +15,10 @@ class Chrome
 	mapWidth: 200
 	mapHeight: 400
 	
+	starsCounter: 0
+	starsX: 0
+	starsY: 0
+	
 	draw: (@s, @player) ->
 		# jump status
 		@s.stroke 255
@@ -87,6 +91,18 @@ class Chrome
 		x = @mapX + paddingLeft + (level.startingPosition.x - min_x) * scale
 		y = @mapY + paddingTop + (-level.startingPosition.y - min_y) * scale
 		@s.image @s["flying_left"], x-20/2, y-25
+	
+	intro: (@s) ->
+		@s.translate(@w/2, @h/2)
+		@s.rotate(0.1)
+		@starsCounter++
+		speed = 0.01
+		@starsX = ((Math.sin @starsCounter*speed)+1)/2 * -(1000-@w - 0) - @w/2
+		@starsY = ((Math.sin @starsCounter*speed)+1)/2 * -(1000-@h - 0)/10 - @h/2
+		@s.image @s.stars, @starsX, @starsY
+		@s.rotate(-0.1)
+		@s.translate(-@w/2, -@h/2)
+		@s.image @s.splash, 0, 0
 	
 	startLevel: (@s, level) ->
 		@s.textAlign(@s.CENTER);

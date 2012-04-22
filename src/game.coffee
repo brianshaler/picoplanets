@@ -11,13 +11,14 @@ KEY_LEFT = 37
 KEY_RIGHT = 39
 KEY_SPACE = 32
 
+MODE_INTRO = "intro"
 MODE_START = "start"
 MODE_PLAY = "play"
 MODE_DEAD = "dead"
 MODE_FINISH = "finish"
 MODE_FINAL = "final"
 
-playMode = MODE_START
+playMode = MODE_INTRO
 
 
 
@@ -142,6 +143,8 @@ document.onkeydown = (e) ->
 				key_dir = KEY_SPACE
 				player.startJumping()
 			switch playMode
+				when MODE_INTRO
+					playMode = MODE_START
 				when MODE_START
 					startGame()
 				when MODE_DEAD
@@ -158,6 +161,8 @@ document.onkeydown = (e) ->
 
 canvas.onclick = (e) ->
 	switch playMode
+		when MODE_INTRO
+			playMode = MODE_START
 		when MODE_START
 			startGame()
 		when MODE_DEAD
@@ -219,6 +224,7 @@ sketch ->
 			for dir in dirs
 				this[img+"_"+dir] = @loadImage("images/spiff/"+img+"_"+dir+".png")
 		@stars = @createImage(1000, 1000, @ARGB)
+		@splash = @loadImage("images/splash.png")
 		p = @stars.pixels.toArray()
 		setPixel this, @stars.pixels, i for pixel, i in p
 		@stars.updatePixels();
@@ -229,6 +235,8 @@ sketch ->
 		@background 0
 		
 		switch playMode
+			when MODE_INTRO
+				chrome.intro this
 			when MODE_START
 				chrome.drawMap this, levels[currentLevel]
 				chrome.startLevel this, levels[currentLevel]
