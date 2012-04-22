@@ -37,15 +37,27 @@ class Chrome
 		@drawText "oxygen", @marginLeft, @marginTop
 	
 	startLevel: (@s) ->
-		txt = "Ready? Click or hit SPACE"
-		@drawText txt, @w/2 - @s.textWidth(txt)/2, @h/2
+		@s.textAlign(@s.CENTER);
+		txt = "Pico Planets"
+		@drawText txt, @w/2, @h/2 - 20, 24
+
+		txt = "Try to get to the green planet before your oxygen runs out!\n
+Watch out for hazards. The sun is HOT!\n
+Hold SPACE to jump. Don't jump too high, or you might drift off into space!\n
+When you're on a planet, you can walk around using the left and right arrow keys.\n
+Click anywhere or hit SPACE to begin"
+		@drawText txt, @w/2, @h/2
+		
+		@s.textAlign(@s.LEFT);
 	
 	dead: (@s) ->
 		txt = "DEAD! Start over?"
 		@drawText txt, @w/2 - @s.textWidth(txt)/2, @h/2
 	
-	drawText: (txt, x, y) ->
-		@s.textFont(@s.loadedFont, 15);
+	drawText: (txt, x, y, size) ->
+		if !size
+			size = 15
+		@s.textFont(@s.loadedFont, size);
 		@s.fill 0
 		@s.text txt, x+1.5, y+1.5
 		@s.text txt, x+.5, y+1.5
