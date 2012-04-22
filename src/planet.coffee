@@ -1,7 +1,7 @@
 class Planet extends Mass
 	constructor: (_x, _y, _radius, _mass) ->
-		lightness = Math.random()*40
-		this.color = [Math.random()*lightness + 200, Math.random()*lightness + 200, Math.random()*lightness + 200]
+		lightness = Math.random()*50
+		this.color = [Math.random()*lightness + 180, Math.random()*lightness + 180, Math.random()*lightness + 180]
 		super _x, _y, _radius, _mass
 	
 	setGoal: () ->
