@@ -2,6 +2,7 @@ class Mass
 	constructor: (@x, @y, @radius, @mass) ->
 	
 	safe: true
+	goal: false
 	distance: 0
 	
 	color: [200, 200, 200]

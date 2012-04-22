@@ -6,15 +6,18 @@ planets = []
 MODE_START = "start"
 MODE_PLAY = "play"
 MODE_DEAD = "dead"
+MODE_FINISH = "finish"
 
 playMode = MODE_START
 
-planets.push new Planet 0, 150, 100
-planets.push new Planet 300, -350, 60
+planets.push new Planet 800, -850, 60
 planets.push new Planet -100, -450, 60
 planets.push new Planet 100, -700, 70
-planets.push new Planet -100, -1000, 100
+planets.push new Planet 300, -1000, 100
+planets.push new Planet -50, 150, 100
 planets.push new Sun 600, -600, 100
+
+planets[0].goal = true
 
 for planet in planets
 	planet.setup()
@@ -38,6 +41,24 @@ KEY_RIGHT = 39
 KEY_SPACE = 32
 
 key_dir = -1
+
+startGame = () ->
+	galaxy.offsetX = player.x
+	galaxy.offsetY = player.y
+	player.x = player.y = 0
+	player.velocityX = player.velocityY = 0
+	player.oxygen = player.maxOxygen
+	rotation = 0
+	playMode = MODE_PLAY
+
+death = () ->
+	playMode = MODE_DEAD
+
+finish = () ->
+	playMode = MODE_FINISH
+
+radio(player.DEAD).subscribe(death)
+radio(player.FINISHED).subscribe(finish)
 
 document.onkeyup = (e) ->
 	if key_dir == KEY_SPACE
@@ -72,11 +93,29 @@ document.onkeydown = (e) ->
 			if key_dir != KEY_SPACE and player.onGround
 				key_dir = KEY_SPACE
 				player.startJumping()
+			switch playMode
+				when MODE_START
+					startGame()
+				when MODE_DEAD
+					startGame()
+				when MODE_FINISH
+					startGame()
 		else
 			cont = true
 			#console.log e.keyCode
 	if !cont
 		e.preventDefault()
+
+canvas = document.getElementById('canvas')
+
+canvas.onclick = (e) ->
+	switch playMode
+		when MODE_START
+			startGame()
+		when MODE_DEAD
+			startGame()
+		when MODE_FINISH
+			startGame()
 
 setPixel = (s, pixels, i) ->
 	pixels.setPixel i, (s.color 0)
@@ -101,26 +140,39 @@ sketch ->
 		p = @stars.pixels.toArray()
 		setPixel this, @stars.pixels, i for pixel, i in p
 		@stars.updatePixels();
+		chrome.s = this
 		this
 
 	@draw = =>
 		@background 0
-		nearestPlanet = player.findNearestPlanet galaxy.planets, false
-		window.nearestPlanet = nearestPlanet
-		idealRotation = (Math.PI/2 - Math.atan2 nearestPlanet.x - player.x, nearestPlanet.y - player.y)
-		diff = Math.abs idealRotation - rotation
-		if (Math.abs idealRotation - Math.PI*2 - rotation) < diff
-			idealRotation = idealRotation - Math.PI*2
-		if (Math.abs idealRotation + Math.PI*2 - rotation) < diff
-			idealRotation = idealRotation + Math.PI*2
-		rotation += (idealRotation - rotation) * .1
-		if rotation < 0
-			rotation += Math.PI*2
-		rotation = rotation % (Math.PI*2)
-		window.rotation = rotation
-		galaxy.rotation = rotation
-		galaxy.offsetX += (player.x - galaxy.offsetX) * .3
-		galaxy.offsetY += (player.y - galaxy.offsetY) * .3
-		player.move().calculatePhysics(galaxy.planets)
-		galaxy.draw this
-		chrome.draw this, player
+		
+		switch playMode
+			when MODE_START
+				txt = "Ready? Click to begin"
+				chrome.drawText txt, w/2 - @textWidth(txt)/2, h/2
+			when MODE_PLAY
+				nearestPlanet = player.findNearestPlanet galaxy.planets, false
+				window.nearestPlanet = nearestPlanet
+				idealRotation = (Math.PI/2 - Math.atan2 nearestPlanet.x - player.x, nearestPlanet.y - player.y)
+				diff = Math.abs idealRotation - rotation
+				if (Math.abs idealRotation - Math.PI*2 - rotation) < diff
+					idealRotation = idealRotation - Math.PI*2
+				if (Math.abs idealRotation + Math.PI*2 - rotation) < diff
+					idealRotation = idealRotation + Math.PI*2
+				rotation += (idealRotation - rotation) * .1
+				if rotation < 0
+					rotation += Math.PI*2
+				rotation = rotation % (Math.PI*2)
+				window.rotation = rotation
+				galaxy.rotation = rotation
+				galaxy.offsetX += (player.x - galaxy.offsetX) * .3
+				galaxy.offsetY += (player.y - galaxy.offsetY) * .3
+				player.move().calculatePhysics(galaxy.planets)
+				galaxy.draw this
+				chrome.draw this, player
+			when MODE_DEAD
+				txt = "DEAD! Start over?"
+				chrome.drawText txt, w/2 - @textWidth(txt)/2, h/2
+			when MODE_FINISH
+				txt = "FINISHED! Play again?"
+				chrome.drawText txt, w/2 - @textWidth(txt)/2, h/2

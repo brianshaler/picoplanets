@@ -8,10 +8,9 @@ class Player
 		@direction = @DIR_RIGHT
 		@currentImage = @IMG_STANDING
 		@walkingImage = @IMG_WALKING
-		cb = =>
+		walkcb = =>
 			@switchWalk()
-			
-		setInterval cb, 200
+		setInterval walkcb, 200
 	
 	x: 0
 	y: 0
@@ -27,6 +26,12 @@ class Player
 	maxSpeed: 3
 	onGround: false
 	walking: false
+	
+	maxOxygen: 1000
+	oxygen: 1000
+	
+	DEAD: "dead"
+	FINISHED: "finished"
 	
 	DIR_RIGHT: "right"
 	DIR_LEFT: "left"
@@ -65,7 +70,9 @@ class Player
 					
 					if dist <= 0
 						if !planet.safe
-							death()
+							@death()
+						if planet.goal
+							@finished()
 						angle = Math.PI/2 - Math.atan2 planet.x-@x, planet.y-@y
 						@x = planet.x - (Math.cos angle) * planet.radius
 						@y = planet.y - (Math.sin angle) * planet.radius
@@ -136,6 +143,11 @@ class Player
 		@jumpVelocity = @minJump
 	
 	draw: (@s, @g) ->
+		if @oxygen > 0
+			@oxygen -= 2
+		else
+			@death()
+		
 		x = @x - @g.offsetX
 		y = @y - @g.offsetY
 		angle = Math.atan2 x, y
@@ -151,4 +163,8 @@ class Player
 		#@s.rect x-@width-2, y-@height, @width, @height
 	
 	death: () ->
+		radio(@DEAD).broadcast()
+	
+	finished: () ->
+		radio(@FINISHED).broadcast()
 		
