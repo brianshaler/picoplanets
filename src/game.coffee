@@ -2,6 +2,14 @@ w = 800
 h = 480
 rotation = 0
 planets = []
+currentLevel = 0
+key_dir = -1
+
+KEY_UP = 38
+KEY_DOWN = 40
+KEY_LEFT = 37
+KEY_RIGHT = 39
+KEY_SPACE = 32
 
 MODE_START = "start"
 MODE_PLAY = "play"
@@ -11,11 +19,18 @@ MODE_FINAL = "final"
 
 playMode = MODE_START
 
+
+
 player = new Player()
 chrome = new Chrome w, h
 
+canvas = document.getElementById('canvas')
+
+
 levels = [
-	(new Level()).setStageSize(w, h)
+	(new Level()).setTitle("Level 1: Hopscotch")
+		.setDescription("Get to the green planet for your oxygen runs out!\n\nUse LEFT/RIGHT arrow keys to walk around on planets.\n\nHold SPACE to jump, but watch the jump meter.\nJump too high, and you'll drift off into space!")
+		.setStageSize(w, h)
 		.setPlayer(player)
 		.setPlanets([
 			(new Planet -50, -120, 70),
@@ -27,51 +42,45 @@ levels = [
 		.setGoal(
 			new Planet 300, 650, 90
 		).setPosition({
-			x: -40, y: 0
+			x: -50, y: -40
 		}).setOxygen(1200)
 		.setJump(40),
-	(new Level()).setStageSize(w, h)
+	(new Level()).setTitle("Level 2: Sunburn")
+		.setDescription("Watch out for hazards! The sun is HOT!")
+		.setStageSize(w, h)
 		.setPlayer(player)
 		.setPlanets([
-			(new Planet -100, -450, 60),
-			(new Planet 100, -700, 70),
-			(new Planet 300, -1000, 100),
-			(new Planet -50, 150, 100),
-			(new Sun 600, -600, 100)
+			(new Planet -100, 450, 60),
+			(new Planet 100, 700, 70),
+			(new Planet 300, 1000, 100),
+			(new Planet -50, -150, 100),
+			(new Sun 600, 600, 100)
 		])
 		.setGoal(
-			new Planet 800, -850, 60
+			new Planet 800, 850, 60
 		).setPosition({
-			x: 0, y: 0
+			x: -50, y: -50
 		}).setOxygen(1400)
 		.setJump(40),
-	(new Level()).setStageSize(w, h)
+	(new Level()).setTitle("Level 3: Total Eclipse of the Target")
+		.setDescription("This is not a straight shot. Use gravity to your advantage!")
+		.setStageSize(w, h)
 		.setPlayer(player)
 		.setPlanets([
-			(new Planet 200, -150, 60),
-			(new Planet 100, 700, 70),
-			(new Planet -100, -400, 100),
-			(new Planet -50, 50, 70),
-			(new Sun 100, 300, 100)
+			(new Planet 200, 150, 60),
+			(new Planet 100, -700, 70),
+			(new Planet -100, 400, 100),
+			(new Planet -50, -50, 70),
+			(new Sun 100, -300, 100)
 		])
 		.setGoal(
-			new Planet -100, -950, 60
+			new Planet -100, 950, 60
 		).setPosition({
-			x: 100, y: 600
+			x: 100, y: -625
 		}).setOxygen(1600)
 		.setJump(40)
 ]
 window.levels = levels
-
-currentLevel = 0
-
-KEY_UP = 38
-KEY_DOWN = 40
-KEY_LEFT = 37
-KEY_RIGHT = 39
-KEY_SPACE = 32
-
-key_dir = -1
 
 startGame = () ->
 	levels[currentLevel].start()
@@ -145,8 +154,6 @@ document.onkeydown = (e) ->
 			#console.log e.keyCode
 	if !cont
 		e.preventDefault()
-
-canvas = document.getElementById('canvas')
 
 canvas.onclick = (e) ->
 	switch playMode
@@ -222,14 +229,17 @@ sketch ->
 		
 		switch playMode
 			when MODE_START
+				chrome.drawMap this, levels[currentLevel]
 				chrome.startLevel this, levels[currentLevel]
 			when MODE_PLAY
 				levels[currentLevel].redraw(this)
 				chrome.draw this, player
 			when MODE_DEAD
+				chrome.drawMap this, levels[currentLevel]
 				chrome.dead this, levels[currentLevel]
 			when MODE_FINISH
-				txt = "Good job! Go on to level "+(currentLevel+1)
+				chrome.drawMap this, levels[currentLevel]
+				chrome.startLevel this, levels[currentLevel]
 				chrome.drawText txt, w/2 - @textWidth(txt)/2, h/2
 			when MODE_FINAL
 				txt = "FINISHED! Start over?"

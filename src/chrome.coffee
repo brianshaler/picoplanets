@@ -10,6 +10,11 @@ class Chrome
 	marginLeft: 40
 	marginRight: 40
 	
+	mapX: 40
+	mapY: 40
+	mapWidth: 200
+	mapHeight: 400
+	
 	draw: (@s, @player) ->
 		# jump status
 		@s.stroke 255
@@ -36,23 +41,64 @@ class Chrome
 			@barHeight - @barPadding*2
 		@drawText "oxygen", @marginLeft, @marginTop
 	
-	startLevel: (@s) ->
-		@s.textAlign(@s.CENTER);
-		txt = "Pico Planets"
-		@drawText txt, @w/2, @h/2 - 20, 24
-
-		txt = "Try to get to the green planet before your oxygen runs out!\n
-Watch out for hazards. The sun is HOT!\n
-Hold SPACE to jump. Don't jump too high, or you might drift off into space!\n
-When you're on a planet, you can walk around using the left and right arrow keys.\n
-Click anywhere or hit SPACE to begin"
-		@drawText txt, @w/2, @h/2
+	drawMap: (@s, level) ->
+		min_x = max_x = min_y = max_y = -1
 		
+		#@s.fill 100, 100, 100
+		#@s.rect 0, 0, @mapWidth, @mapHeight
+		
+		for planet in level.planets
+			do (planet) =>
+				x = planet.x
+				y = planet.y * -1
+				min_x = if min_x == -1 or x - planet.radius < min_x then x - planet.radius else min_x
+				max_x = if max_x == -1 or x + planet.radius > max_x then x + planet.radius else max_x
+				min_y = if min_y == -1 or y - planet.radius < min_y then y - planet.radius else min_y
+				max_y = if max_y == -1 or y + planet.radius > max_y then y + planet.radius else max_y
+		
+		scale = @mapWidth / (max_x - min_x)
+		if (max_y - min_y) * scale > @mapHeight
+			scale = @mapHeight / (max_y - min_y)
+		
+		paddingLeft = (@mapWidth - (max_x - min_x) * scale)/2
+		paddingTop = (@mapHeight - (max_y - min_y) * scale)/2
+		
+		###
+		@s.stroke 255
+		@s.beginShape()
+		for planet in level.planets
+			do (planet) =>
+				x = paddingLeft + (planet.x - min_x) * scale
+				y = paddingTop + (-planet.y - min_y) * scale
+				@s.vertex 0, 0
+				@s.vertex x, y
+		@s.endShape()
+		###
+		
+		for planet in level.planets
+			do (planet) =>
+				x = @mapX + paddingLeft + (planet.x - min_x) * scale
+				y = @mapY + paddingTop + (-planet.y - min_y) * scale
+				size = planet.radius*2 * scale
+				@s.noStroke()
+				@s.fill planet.color[0], planet.color[1], planet.color[2]
+				@s.ellipse x, y, size, size
+		
+		x = @mapX + paddingLeft + (level.startingPosition.x - min_x) * scale
+		y = @mapY + paddingTop + (-level.startingPosition.y - min_y) * scale
+		@s.image @s["flying_left"], x-20/2, y-25
+	
+	startLevel: (@s, level) ->
+		@s.textAlign(@s.CENTER);
+		@drawText level.title, @w/2+100, @h/2 - 24, 24
+		@drawText level.description, @w/2+100, @h/2
 		@s.textAlign(@s.LEFT);
 	
 	dead: (@s) ->
-		txt = "DEAD! Start over?"
-		@drawText txt, @w/2 - @s.textWidth(txt)/2, @h/2
+		@s.textAlign(@s.CENTER);
+		txt = "DEAD! Try again?"
+		@drawText txt, @w/2+100, @h/2
+		@s.textAlign(@s.LEFT);
 	
 	drawText: (txt, x, y, size) ->
 		if !size
