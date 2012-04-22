@@ -66,7 +66,7 @@ class Level
 			idealRotation = idealRotation - Math.PI*2
 		if (Math.abs idealRotation + Math.PI*2 - this.rotation) < diff
 			idealRotation = idealRotation + Math.PI*2
-		this.rotation += (idealRotation - this.rotation) * .15
+		this.rotation += (idealRotation - this.rotation) * .08
 		if this.rotation < 0
 			this.rotation += Math.PI*2
 		this.rotation = this.rotation % (Math.PI*2)
