@@ -28,7 +28,7 @@ class Mass
 				this.onContact player
 		this
 	
-	draw: (s, this.g) ->
+	draw: (s, g) ->
 		this.s = s
 		this.g = g
 		x = this.x - g.offsetX
