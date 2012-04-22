@@ -204,10 +204,11 @@ getColor = (val, min, max, rules) ->
 	}
 
 
+starBrightness = 155
 setPixel = (s, pixels, i) ->
 	#pixels.setPixel i, (s.color 0)
 	if Math.random() * 1000 < 2
-		pixels.setPixel i, (s.color 255, 255, 255)
+		pixels.setPixel i, (s.color starBrightness)
 	
 
 sketch ->
