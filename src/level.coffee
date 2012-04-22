@@ -3,11 +3,21 @@ class Level
 		this.galaxy = new Galaxy()
 		this
 	
+	title: ""
+	description: ""
 	planets: []
 	startingPosition: {x: 0, y: 0}
 	startingOxygen: 1000
 	maxJump: 40
 	rotation: 0
+	
+	setTitle: (t) ->
+		this.title = t
+		this
+	
+	setDescription: (d) ->
+		this.description = d
+		this
 	
 	setStageSize: (_w, _h) ->
 		this.w = _w
@@ -52,9 +62,11 @@ class Level
 	
 	start: () ->
 		this.reset()
+		this.player.calculatePhysics this.galaxy.planets
 		nearestPlanet = this.player.findNearestPlanet this.galaxy.planets, false
 		idealRotation = (Math.PI/2 - Math.atan2 nearestPlanet.x - this.player.x, nearestPlanet.y - this.player.y)
-		this.rotation = idealRotation - Math.PI/2
+		this.rotation = idealRotation
+		window.rotation = this.rotation
 		this
 	
 	redraw: (_s) ->
