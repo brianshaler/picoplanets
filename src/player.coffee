@@ -1,12 +1,15 @@
 class Player
 	constructor: () ->
-		@direction = @DIR_RIGHT
-		@currentImage = @IMG_STANDING
-		@walkingImage = @IMG_WALKING
+		this.direction = this.DIR_RIGHT
+		this.currentImage = this.IMG_STANDING
+		this.walkingImage = this.IMG_WALKING
 		walkcb = =>
-			@switchWalk()
+			this.switchWalk()
 		setInterval walkcb, 200
 	
+	activated: false
+	alive: true
+	burnt: false
 	x: 0
 	y: 0
 	width: 20
@@ -35,21 +38,24 @@ class Player
 	IMG_WALKING: "walking"
 	IMG_SQUATTING: "squatting"
 	IMG_FLYING: "flying"
+	IMG_BURNT: "burnt"
+	
 	walkingImage: ""
 	currentImage: ""
 	lastImageChange: 0
 	
 	accel: (angle, force, cap) ->
-		@velocityX += (Math.cos angle) * force
-		@velocityY += (Math.sin angle) * force
-		if cap and Math.sqrt (Math.pow @velocityX, 2) + (Math.pow @velocityY, 2) > @maxSpeed
-			angle = Math.PI/2 - Math.atan2 @velocityX, @velocityY
-			@velocityX = (Math.cos angle) * @maxSpeed
-			@velocityY = (Math.sin angle) * @maxSpeed
+		if this.activated
+			this.velocityX += (Math.cos angle) * force
+			this.velocityY += (Math.sin angle) * force
+			if cap and Math.sqrt (Math.pow this.velocityX, 2) + (Math.pow this.velocityY, 2) > this.maxSpeed
+				angle = Math.PI/2 - Math.atan2 this.velocityX, this.velocityY
+				this.velocityX = (Math.cos angle) * this.maxSpeed
+				this.velocityY = (Math.sin angle) * this.maxSpeed
 	
 	calculatePhysics: (planets) ->
-		og = @onGround
-		@onGround = false
+		og = this.onGround
+		this.onGround = false
 		nearPlanet = false
 		for planet in planets
 			do (planet) =>
@@ -59,107 +65,132 @@ class Player
 				if (dist < planet.radius)
 					nearPlanet = true
 				if dist < 10
-					@onGround = true
-					@velocityX *= .99
-					@velocityY *= .99
+					this.onGround = true
+					this.velocityX *= .99
+					this.velocityY *= .99
 					
 					if dist <= 0
 						if !planet.safe
-							@death()
+							this.death()
 						if planet.goal
-							@finished()
-						angle = Math.PI/2 - Math.atan2 planet.x-@x, planet.y-@y
-						@x = planet.x - (Math.cos angle) * planet.radius
-						@y = planet.y - (Math.sin angle) * planet.radius
-					if dist < 5 && !@walking
-						@velocityX *= 0.5
-						@velocityY *= 0.5
+							this.finished()
+						angle = Math.PI/2 - Math.atan2 planet.x-this.x, planet.y-this.y
+						this.x = planet.x - (Math.cos angle) * planet.radius
+						this.y = planet.y - (Math.sin angle) * planet.radius
+					if dist < 5 && !this.walking
+						this.velocityX *= 0.5
+						this.velocityY *= 0.5
 						
 		if nearPlanet
-			@velocityX *= .99
-			@velocityY *= .99
-		if !@onGround
-			@walking = false
+			this.velocityX *= .99
+			this.velocityY *= .99
+		if !this.onGround
+			this.walking = false
 						
 		this
 	
 	move: () ->
-		@x += @velocityX
-		@y += @velocityY
+		if !this.burnt
+			this.x += this.velocityX
+			this.y += this.velocityY
 		d = new Date()
 		t = d.getTime()
-		if @onGround and !@jumping
-			if Math.abs(@velocityX) + Math.abs(@velocityY) > 0.1
-				@currentImage = @walkingImage
+		if this.onGround and !this.jumping
+			if Math.abs(this.velocityX) + Math.abs(this.velocityY) > 0.1
+				this.currentImage = this.walkingImage
 			else
-				@currentImage = @IMG_STANDING
+				this.currentImage = this.IMG_STANDING
 		else
-			if @jumping
-				@currentImage = @IMG_SQUATTING
+			if this.jumping
+				this.currentImage = this.IMG_SQUATTING
 			else
-				@currentImage = @IMG_FLYING
+				this.currentImage = this.IMG_FLYING
 		
-		#@velocityX *= .1
-		#@velocityY *= .1
+		#this.velocityX *= .1
+		#this.velocityY *= .1
 		this
 	
 	switchWalk: () ->
-		if @walkingImage != @IMG_WALKING
-			@walkingImage = @IMG_WALKING
+		if this.walkingImage != this.IMG_WALKING
+			this.walkingImage = this.IMG_WALKING
 		else
-			@walkingImage = @IMG_STANDING
+			this.walkingImage = this.IMG_STANDING
 	
 	findNearestPlanet: (planets, log) ->
-		@nearestPlanet = planets[0]
-		nearestDistance = @nearestPlanet.distance
+		this.nearestPlanet = planets[0]
+		nearestDistance = this.nearestPlanet.distance
 		for planet in planets
 			do (planet) =>
 				dist = planet.distance
 				if dist < nearestDistance
-					@nearestPlanet = planet
+					this.nearestPlanet = planet
 					nearestDistance = dist
 				else
-					#console.log "Nope! " + @distanceTo(planet) + " > " + nearestDistance if log
-		@nearestPlanet
+					#console.log "Nope! " + this.distanceTo(planet) + " > " + nearestDistance if log
+		this.nearestPlanet
 	
 	startJumping: () ->
-		@jumping = true
-		@jumpVelocity = @minJump
-		cb = =>
-			#console.log "cb: "+@jumpVelocity
-			@jumpVelocity = if @jumpVelocity + 1 < @maxJump then @jumpVelocity + 1 else @maxJump
-			if @jumping then setTimeout cb, 30
-		cb()
+		if this.alive and this.activated
+			this.jumping = true
+			this.jumpVelocity = this.minJump
+			cb = =>
+				#console.log "cb: "+this.jumpVelocity
+				this.jumpVelocity = if this.jumpVelocity + 1 < this.maxJump then this.jumpVelocity + 1 else this.maxJump
+				if this.jumping then setTimeout cb, 30
+			cb()
+		this
 	
 	jump: () ->
-		#console.log "Jump! "+@jumpVelocity
-		@accel (window.rotation - Math.PI), @jumpVelocity
-		@jumping = false
-		@jumpVelocity = @minJump
+		if this.alive and this.activated
+			#console.log "Jump! "+this.jumpVelocity
+			this.accel (this.g.rotation - Math.PI), this.jumpVelocity
+			this.jumping = false
+			this.jumpVelocity = this.minJump
+		this
 	
-	draw: (@s, @g) ->
-		if @oxygen > 0
-			@oxygen -= 2
-		else
-			@death()
+	draw: (_s, _g) ->
+		this.s = _s
+		this.g = _g
+		if this.activated
+			if this.oxygen > 0
+				this.oxygen -= 2
+			else
+				this.death()
 		
-		x = @x - @g.offsetX
-		y = @y - @g.offsetY
+		x = this.x - this.g.offsetX
+		y = this.y - this.g.offsetY
 		angle = Math.atan2 x, y
 		dist = Math.sqrt (Math.pow x, 2) + (Math.pow y, 2)
-		angle += @g.rotation
+		angle += this.g.rotation
 		x = (Math.cos angle) * dist
 		y = (Math.sin angle) * dist
-		x += @g.w/2
-		y += @g.h/2
-		@s.image @s[@currentImage + "_" + @direction], x-@width-2, y-@height
-		#@s.noStroke()
-		#@s.fill 255, 0, 0
-		#@s.rect x-@width-2, y-@height, @width, @height
+		x += this.g.w/2
+		y += this.g.h/2
+		if !this.alive
+			this.currentImage = if this.burnt then this.IMG_BURNT else this.IMG_STANDING
+		this.s.image this.s[this.currentImage + "_" + this.direction], x-this.width-2, y-this.height
+		#this.s.noStroke()
+		#this.s.fill 255, 0, 0
+		#this.s.rect x-this.width-2, y-this.height, this.width, this.height
+	
+	reset: () ->
+		this.velocityX = this.velocityY = 0
+		this.jumping = false
+		this.jumpVelocity = 0
+		this.onGround = false
+		this.burnt = false
+		this.alive = true
+		this.activated = true
+		this
 	
 	death: () ->
-		radio(@DEAD).broadcast()
+		cb = =>
+			radio(this.DEAD).broadcast()
+		setTimeout cb, 1000
 	
 	finished: () ->
-		radio(@FINISHED).broadcast()
+		this.activated = false
+		cb = =>
+			radio(this.FINISHED).broadcast()
+		setTimeout cb, 1000
 		

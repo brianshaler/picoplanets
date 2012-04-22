@@ -7,6 +7,7 @@ MODE_START = "start"
 MODE_PLAY = "play"
 MODE_DEAD = "dead"
 MODE_FINISH = "finish"
+MODE_FINAL = "final"
 
 playMode = MODE_START
 
@@ -26,25 +27,26 @@ levels = [
 		.setGoal(
 			new Planet 800, -850, 60
 		).setPosition({
-			x: 0, y: -300
+			x: 0, y: 0
 		}).setOxygen(1000)
 		.setJump(40),
 	(new Level()).setStageSize(w, h)
 		.setPlayer(player)
 		.setPlanets([
-			(new Planet 100, -450, 60),
-			(new Planet -100, -700, 70),
-			(new Planet -300, -1000, 100),
-			(new Planet 50, 150, 100),
-			(new Sun -600, -600, 100)
+			(new Planet 200, -150, 60),
+			(new Planet 100, 700, 70),
+			(new Planet -100, -400, 100),
+			(new Planet -50, 50, 70),
+			(new Sun 100, 300, 100)
 		])
 		.setGoal(
-			new Planet -800, -850, 60
+			new Planet -100, -950, 60
 		).setPosition({
-			x: 0, y: -300
+			x: 100, y: 600
 		}).setOxygen(1000)
 		.setJump(40)
 ]
+window.levels = levels
 
 currentLevel = 0
 
@@ -60,13 +62,21 @@ startGame = () ->
 	levels[currentLevel].start()
 	playMode = MODE_PLAY
 
+startOver = () ->
+	currentLevel = 0
+	startGame()
+
 death = () ->
-	levels[currentLevel].reset()
+	#levels[currentLevel].reset()
 	playMode = MODE_DEAD
 
 finish = () ->
-	levels[currentLevel].reset()
-	playMode = MODE_FINISH
+	#levels[currentLevel].reset()
+	if currentLevel < levels.length - 1
+		currentLevel += 1
+		playMode = MODE_FINISH
+	else
+		playMode = MODE_FINAL
 
 radio(player.DEAD).subscribe(death)
 radio(player.FINISHED).subscribe(finish)
@@ -78,28 +88,30 @@ document.onkeyup = (e) ->
 	player.walking = false
 
 document.onkeydown = (e) ->
+	player = levels[currentLevel].player
+	rotation = levels[currentLevel].rotation
 	cont = false
 	switch e.keyCode
 		when KEY_UP
 			if key_dir != KEY_UP and 1 == 2
 				key_dir = KEY_UP
-				player.accel (window.rotation - Math.PI), 10
+				player.accel (rotation - Math.PI), 10
 		when KEY_DOWN
 			if key_dir != KEY_DOWN and 1 == 2
 				key_dir = KEY_DOWN
-				player.accel (window.rotation), 10
+				player.accel (rotation), 10
 		when KEY_LEFT
 			if key_dir != KEY_LEFT and player.onGround
 				#key_dir = KEY_LEFT
 				player.direction = player.DIR_LEFT
 				player.walking = true
-				player.accel (window.rotation - Math.PI/2), 3, true
+				player.accel (rotation - Math.PI/2), 3, true
 		when KEY_RIGHT
 			if key_dir != KEY_RIGHT and player.onGround
 				#key_dir = KEY_RIGHT
 				player.direction = player.DIR_RIGHT
 				player.walking = true
-				player.accel (window.rotation + Math.PI/2), 3, true
+				player.accel (rotation + Math.PI/2), 3, true
 		when KEY_SPACE
 			if key_dir != KEY_SPACE and player.onGround
 				key_dir = KEY_SPACE
@@ -111,6 +123,8 @@ document.onkeydown = (e) ->
 					startGame()
 				when MODE_FINISH
 					startGame()
+				when MODE_FINAL
+					startOver()
 		else
 			cont = true
 			#console.log e.keyCode
@@ -127,6 +141,8 @@ canvas.onclick = (e) ->
 			startGame()
 		when MODE_FINISH
 			startGame()
+		when MODE_FINAL
+			startOver()
 
 
 runningOutColors = [
@@ -174,7 +190,7 @@ sketch ->
 		@noFill()
 		@frameRate 30
 		@loadedFont = @loadFont("fonts/Audiowide-Regular.ttf")
-		imgs = [player.IMG_STANDING, player.IMG_WALKING, player.IMG_SQUATTING, player.IMG_FLYING]
+		imgs = [player.IMG_STANDING, player.IMG_WALKING, player.IMG_SQUATTING, player.IMG_FLYING, player.IMG_BURNT]
 		dirs = [player.DIR_LEFT, player.DIR_RIGHT]
 		for img in imgs
 			for dir in dirs
@@ -191,14 +207,15 @@ sketch ->
 		
 		switch playMode
 			when MODE_START
-				txt = "Ready? Click to begin"
-				chrome.drawText txt, w/2 - @textWidth(txt)/2, h/2
+				chrome.startLevel this, levels[currentLevel]
 			when MODE_PLAY
 				levels[currentLevel].redraw(this)
 				chrome.draw this, player
 			when MODE_DEAD
-				txt = "DEAD! Start over?"
-				chrome.drawText txt, w/2 - @textWidth(txt)/2, h/2
+				chrome.dead this, levels[currentLevel]
 			when MODE_FINISH
-				txt = "FINISHED! Play again?"
+				txt = "Good job! Go on to level "+(currentLevel+1)
+				chrome.drawText txt, w/2 - @textWidth(txt)/2, h/2
+			when MODE_FINAL
+				txt = "FINISHED! Start over?"
 				chrome.drawText txt, w/2 - @textWidth(txt)/2, h/2

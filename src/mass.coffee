@@ -8,15 +8,21 @@ class Mass
 	color: [200, 200, 200]
 	markerColor: [127, 127, 127]
 	
+	onContact: (player) ->
+		this
+	
 	physics: (player) ->
 		@distance = @distanceTo(player)
-		if @distance < @radius*4
+		if @distance < @radius*5
 			if @distance > 0
-				p = 1 - (Math.sin @distance / (@radius*4) * Math.PI/2)
+				p = 1 - (Math.sin @distance / (@radius*5) * Math.PI/2)
 				pull = p * (@radius+100)*.01
 				angle = Math.PI/2 - Math.atan2 @x-player.x, @y-player.y
 				player.velocityX += (Math.cos angle) * pull
 				player.velocityY += (Math.sin angle) * pull
+			else
+				this.onContact player
+		this
 	
 	draw: (@s, @g) ->
 		x = @x - @g.offsetX
@@ -69,6 +75,7 @@ class Mass
 			@s.endShape()
 			#@s.line w2, h2, x, y
 			#@s.ellipse x, y, 10, 10
+		this
 	
 	distanceTo: (player) ->
 		(Math.sqrt (Math.pow @x-player.x, 2) + (Math.pow @y-player.y, 2)) - @radius

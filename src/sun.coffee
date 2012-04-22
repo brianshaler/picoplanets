@@ -9,5 +9,10 @@ class Sun extends Mass
 	
 	markerColor: [255, 0, 0]
 	
+	onContact: (p) ->
+		p.burnt = true
+		p.alive = false
+		super p
+	
 	draw: (@s, @g) ->
 		super @s, @g

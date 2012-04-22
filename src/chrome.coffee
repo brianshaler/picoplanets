@@ -36,6 +36,14 @@ class Chrome
 			@barHeight - @barPadding*2
 		@drawText "oxygen", @marginLeft, @marginTop
 	
+	startLevel: (@s) ->
+		txt = "Ready? Click or hit SPACE"
+		@drawText txt, @w/2 - @s.textWidth(txt)/2, @h/2
+	
+	dead: (@s) ->
+		txt = "DEAD! Start over?"
+		@drawText txt, @w/2 - @s.textWidth(txt)/2, @h/2
+	
 	drawText: (txt, x, y) ->
 		@s.textFont(@s.loadedFont, 15);
 		@s.fill 0
