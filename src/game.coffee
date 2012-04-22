@@ -3,11 +3,24 @@ h = 480
 rotation = 0
 planets = []
 
-planets.push new Planet	0, 0, 100
-planets.push new Planet	200, -300, 60
-planets.push new Planet	-100, -350, 60
-planets.push new Planet	300, -600, 70
-planets.push new Planet	100, -1000, 100
+MODE_START = "start"
+MODE_PLAY = "play"
+MODE_DEAD = "dead"
+
+playMode = MODE_START
+
+planets.push new Planet 0, 150, 100
+planets.push new Planet 300, -350, 60
+planets.push new Planet -100, -450, 60
+planets.push new Planet 100, -700, 70
+planets.push new Planet -100, -1000, 100
+planets.push new Sun 600, -600, 100
+
+for planet in planets
+	planet.setup()
+	#planet.color[0] = Math.random()*100 * 155
+	#planet.color[1] = Math.random()*100 * 155
+	#planet.color[2] = Math.random()*100 * 155
 
 player = new Player()
 player.y = -300
@@ -30,6 +43,7 @@ document.onkeyup = (e) ->
 	if key_dir == KEY_SPACE
 		player.jump()
 	key_dir = -1
+	player.walking = false
 
 document.onkeydown = (e) ->
 	cont = false
@@ -46,11 +60,13 @@ document.onkeydown = (e) ->
 			if key_dir != KEY_LEFT and player.onGround
 				#key_dir = KEY_LEFT
 				player.direction = player.DIR_LEFT
+				player.walking = true
 				player.accel (window.rotation - Math.PI/2), 3, true
 		when KEY_RIGHT
 			if key_dir != KEY_RIGHT and player.onGround
 				#key_dir = KEY_RIGHT
 				player.direction = player.DIR_RIGHT
+				player.walking = true
 				player.accel (window.rotation + Math.PI/2), 3, true
 		when KEY_SPACE
 			if key_dir != KEY_SPACE and player.onGround
@@ -75,7 +91,6 @@ sketch ->
 		@background 0
 		@noFill()
 		@frameRate 30
-		console.log @PFont.list()
 		@loadedFont = @loadFont("fonts/Audiowide-Regular.ttf")
 		imgs = [player.IMG_STANDING, player.IMG_WALKING, player.IMG_SQUATTING, player.IMG_FLYING]
 		dirs = [player.DIR_LEFT, player.DIR_RIGHT]

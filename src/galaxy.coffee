@@ -29,4 +29,3 @@ class Galaxy
 		@sketch.image @sketch.stars, -500, -500
 		@sketch.rotate(-@rotation)
 		@sketch.translate(-@w/2, -@h/2)
-		

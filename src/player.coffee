@@ -24,8 +24,9 @@ class Player
 	jumpVelocity: 0
 	maxJump: 40
 	minJump: 10
-	maxSpeed: 20
+	maxSpeed: 3
 	onGround: false
+	walking: false
 	
 	DIR_RIGHT: "right"
 	DIR_LEFT: "left"
@@ -47,29 +48,37 @@ class Player
 			@velocityY = (Math.sin angle) * @maxSpeed
 	
 	calculatePhysics: (planets) ->
+		og = @onGround
 		@onGround = false
+		nearPlanet = false
 		for planet in planets
 			do (planet) =>
-				dist = @distanceTo(planet)
-				if dist < planet.radius*3
-					if dist > 0
-						@velocityX *= .99
-						@velocityY *= .99
-						pull = (Math.sqrt (1 - (dist / (planet.radius*3))) * (planet.radius+100)*.05)
-						angle = Math.PI/2 - Math.atan2 planet.x-@x, planet.y-@y
-						@velocityX += (Math.cos angle) * pull
-						@velocityY += (Math.sin angle) * pull
-						dist = @distanceTo(planet)
+				if !og or planet.distance < 20
+					planet.physics this
+				dist = planet.distance
+				if (dist < planet.radius)
+					nearPlanet = true
+				if dist < 10
+					@onGround = true
+					@velocityX *= .99
+					@velocityY *= .99
+					
 					if dist <= 0
+						if !planet.safe
+							death()
 						angle = Math.PI/2 - Math.atan2 planet.x-@x, planet.y-@y
 						@x = planet.x - (Math.cos angle) * planet.radius
 						@y = planet.y - (Math.sin angle) * planet.radius
-						@velocityX = 0
-						@velocityY = 0
-					if dist < 10
-						@onGround = true
-						@velocityX *= .99
-						@velocityY *= .99
+					if dist < 5 && !@walking
+						@velocityX *= 0.5
+						@velocityY *= 0.5
+						
+		if nearPlanet
+			@velocityX *= .99
+			@velocityY *= .99
+		if !@onGround
+			@walking = false
+						
 		this
 	
 	move: () ->
@@ -100,10 +109,10 @@ class Player
 	
 	findNearestPlanet: (planets, log) ->
 		@nearestPlanet = planets[0]
-		nearestDistance = @distanceTo @nearestPlanet
+		nearestDistance = @nearestPlanet.distance
 		for planet in planets
 			do (planet) =>
-				dist = @distanceTo planet
+				dist = planet.distance
 				if dist < nearestDistance
 					@nearestPlanet = planet
 					nearestDistance = dist
@@ -141,5 +150,5 @@ class Player
 		#@s.fill 255, 0, 0
 		#@s.rect x-@width-2, y-@height, @width, @height
 	
-	distanceTo: (planet) ->
-		(Math.sqrt (Math.pow planet.x-@x, 2) + (Math.pow planet.y-@y, 2)) - planet.radius
+	death: () ->
+		
