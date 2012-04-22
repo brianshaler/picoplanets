@@ -97,9 +97,22 @@ class Chrome
 		@s.rotate(0.1)
 		@starsCounter++
 		speed = 0.01
-		@starsX = ((Math.sin @starsCounter*speed)+1)/2 * -(1000-@w - 0) - @w/2
-		@starsY = ((Math.sin @starsCounter*speed)+1)/2 * -(1000-@h - 0)/10 - @h/2
-		@s.image @s.stars, @starsX, @starsY
+		@starsX = (@starsX + 2) % 1000
+		if @starsX >= -@w/2
+			@starsX -= 1000
+		@starsY = (@starsY + 1) % 1000
+		if @starsY >= -@h/2
+			@starsY -= 1000
+		
+		x = @starsX
+		y = @starsY
+		while x < @w
+			y = @starsY
+			while y < @h
+				@s.image @s.stars, x, y
+				y += 1000
+			x += 1000
+		
 		@s.rotate(-0.1)
 		@s.translate(-@w/2, -@h/2)
 		@s.image @s.splash, 0, 0
