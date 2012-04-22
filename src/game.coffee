@@ -30,7 +30,7 @@ ctx.font = '14px "AudiowideRegular"'
 
 levels = [
 	(new Level()).setTitle("Level 1: Hopscotch")
-		.setDescription("Get to the green planet for your oxygen runs out!\n\nUse LEFT/RIGHT arrow keys to walk around on planets.\n\nHold SPACE to jump, but watch the jump meter.\nJump too high, and you'll drift off into space!")
+		.setDescription("Get to the green planet for your oxygen runs out!\n\nUse LEFT/RIGHT arrow keys to walk around on planets.\n\nHold SPACE to jump, but watch the jump meter.\nJump too high, and you'll drift off into space!\n\n(click here or hit SPACE to begin)")
 		.setStageSize(w, h)
 		.setPlayer(player)
 		.setPlanets([
