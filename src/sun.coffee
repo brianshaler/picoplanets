@@ -1,8 +1,6 @@
 class Sun extends Mass
-	constructor: (@x, @y, @radius) ->
-		
-	setup: () ->
-		this
+	constructor: (_x, _y, _radius, _mass) ->
+		super _x, _y, _radius, _mass
 	
 	safe: false
 	color: [255, 200, 50]
@@ -14,5 +12,5 @@ class Sun extends Mass
 		p.alive = false
 		super p
 	
-	draw: (@s, @g) ->
-		super @s, @g
+	draw: (_s, _g) ->
+		super _s, _g
