@@ -10,7 +10,7 @@ fs = require 'fs'
 config =
   srcDir: 'src'
   outDir: 'lib'
-  inFiles: [ 'mass', 'planet', 'sun', 'player', 'galaxy', 'chrome', 'game' ]
+  inFiles: [ 'mass', 'planet', 'sun', 'player', 'galaxy', 'level', 'chrome', 'game' ]
   outFile: 'game'
 
 outJS = "#{config.outDir}/#{config.outFile}"

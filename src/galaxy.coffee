@@ -7,7 +7,10 @@ class Galaxy
 	rotation: 0
 	stars: false
 	
-	constructor: (@w, @h, @player, @planets) ->
+	constructor: () ->
+	
+	setStageSize: (@w, @h) ->
+		this
 	
 	draw: (@sketch) ->
 		@drawStars()
@@ -18,14 +21,8 @@ class Galaxy
 		planet.draw @sketch, this, @rotation
 	
 	drawStars: () ->
-		
-		#@sketch.pushMatrix();
-
 		@sketch.translate(@w/2, @h/2)
 		@sketch.rotate(@rotation)
-		
-		#@sketch.popMatrix();
-		
 		@sketch.image @sketch.stars, -500, -500
 		@sketch.rotate(-@rotation)
 		@sketch.translate(-@w/2, -@h/2)

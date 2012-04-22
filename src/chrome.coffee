@@ -2,7 +2,7 @@ class Chrome
 	constructor: (@w, @h) ->
 	
 	barWidth: 200
-	barHeight: 32
+	barHeight: 26
 	barPadding: 4
 	
 	marginTop: 40
@@ -28,7 +28,8 @@ class Chrome
 		@s.fill 0
 		@s.rect @marginLeft, @marginTop + 10, @barWidth, @barHeight
 		@s.noStroke()
-		@s.fill 255, 0, 0
+		c = getColor @player.oxygen, 0, @player.maxOxygen, runningOutColors
+		@s.fill c.r, c.g, c.b
 		@s.rect @marginLeft + @barPadding, 
 			@marginTop + @barPadding + 10, 
 			((@barWidth-@barPadding*2) * (@player.oxygen) / (@player.maxOxygen)),

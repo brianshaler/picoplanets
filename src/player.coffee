@@ -1,8 +1,3 @@
-`/* @pjs preload="images/standing.png"; */`
-`/* @pjs preload="images/walking.png"; */`
-`/* @pjs preload="images/squatting.png"; */`
-`/* @pjs preload="images/flying.png"; */`
-
 class Player
 	constructor: () ->
 		@direction = @DIR_RIGHT

@@ -10,29 +10,43 @@ MODE_FINISH = "finish"
 
 playMode = MODE_START
 
-planets.push new Planet 800, -850, 60
-planets.push new Planet -100, -450, 60
-planets.push new Planet 100, -700, 70
-planets.push new Planet 300, -1000, 100
-planets.push new Planet -50, 150, 100
-planets.push new Sun 600, -600, 100
-
-planets[0].goal = true
-
-for planet in planets
-	planet.setup()
-	#planet.color[0] = Math.random()*100 * 155
-	#planet.color[1] = Math.random()*100 * 155
-	#planet.color[2] = Math.random()*100 * 155
-
 player = new Player()
-player.y = -300
-
-galaxy = new Galaxy w, h, player, planets
 chrome = new Chrome w, h
 
-window.player = player
-window.galaxy = galaxy
+levels = [
+	(new Level()).setStageSize(w, h)
+		.setPlayer(player)
+		.setPlanets([
+			(new Planet -100, -450, 60),
+			(new Planet 100, -700, 70),
+			(new Planet 300, -1000, 100),
+			(new Planet -50, 150, 100),
+			(new Sun 600, -600, 100)
+		])
+		.setGoal(
+			new Planet 800, -850, 60
+		).setPosition({
+			x: 0, y: -300
+		}).setOxygen(1000)
+		.setJump(40),
+	(new Level()).setStageSize(w, h)
+		.setPlayer(player)
+		.setPlanets([
+			(new Planet 100, -450, 60),
+			(new Planet -100, -700, 70),
+			(new Planet -300, -1000, 100),
+			(new Planet 50, 150, 100),
+			(new Sun -600, -600, 100)
+		])
+		.setGoal(
+			new Planet -800, -850, 60
+		).setPosition({
+			x: 0, y: -300
+		}).setOxygen(1000)
+		.setJump(40)
+]
+
+currentLevel = 0
 
 KEY_UP = 38
 KEY_DOWN = 40
@@ -43,18 +57,15 @@ KEY_SPACE = 32
 key_dir = -1
 
 startGame = () ->
-	galaxy.offsetX = player.x
-	galaxy.offsetY = player.y
-	player.x = player.y = 0
-	player.velocityX = player.velocityY = 0
-	player.oxygen = player.maxOxygen
-	rotation = 0
+	levels[currentLevel].start()
 	playMode = MODE_PLAY
 
 death = () ->
+	levels[currentLevel].reset()
 	playMode = MODE_DEAD
 
 finish = () ->
+	levels[currentLevel].reset()
 	playMode = MODE_FINISH
 
 radio(player.DEAD).subscribe(death)
@@ -117,8 +128,40 @@ canvas.onclick = (e) ->
 		when MODE_FINISH
 			startGame()
 
+
+runningOutColors = [
+	{p: 0, r: 255, g: 0, b: 0},
+	{p: .3, r: 255, g: 255, b: 0},
+	{p: .7, r: 0, g: 200, b: 0}
+]
+
+getColor = (val, min, max, rules) ->
+	p = (val-min)/(max-min)
+	if p < 0 then p = 0
+	if p > 1 then p = 1
+	
+	lower = 0
+	for rule, i in rules
+		if rule.p <= p then lower = i
+	
+	if lower < 0 then lower = 0
+	
+	upper = if lower < rules.length - 1 then lower + 1 else rules.length - 1
+	
+	c1 = rules[lower]
+	c2 = rules[upper]
+	
+	v = if c2.p > c1.p then (p-c1.p) / (c2.p-c1.p) else 0
+	
+	c = {
+		r: c1.r + v*(c2.r-c1.r), 
+		g: c1.g + v*(c2.g-c1.g), 
+		b: c1.b + v*(c2.b-c1.b)
+	}
+
+
 setPixel = (s, pixels, i) ->
-	pixels.setPixel i, (s.color 0)
+	#pixels.setPixel i, (s.color 0)
 	if Math.random() * 1000 < 2
 		pixels.setPixel i, (s.color 255, 255, 255)
 	
@@ -151,24 +194,7 @@ sketch ->
 				txt = "Ready? Click to begin"
 				chrome.drawText txt, w/2 - @textWidth(txt)/2, h/2
 			when MODE_PLAY
-				nearestPlanet = player.findNearestPlanet galaxy.planets, false
-				window.nearestPlanet = nearestPlanet
-				idealRotation = (Math.PI/2 - Math.atan2 nearestPlanet.x - player.x, nearestPlanet.y - player.y)
-				diff = Math.abs idealRotation - rotation
-				if (Math.abs idealRotation - Math.PI*2 - rotation) < diff
-					idealRotation = idealRotation - Math.PI*2
-				if (Math.abs idealRotation + Math.PI*2 - rotation) < diff
-					idealRotation = idealRotation + Math.PI*2
-				rotation += (idealRotation - rotation) * .1
-				if rotation < 0
-					rotation += Math.PI*2
-				rotation = rotation % (Math.PI*2)
-				window.rotation = rotation
-				galaxy.rotation = rotation
-				galaxy.offsetX += (player.x - galaxy.offsetX) * .3
-				galaxy.offsetY += (player.y - galaxy.offsetY) * .3
-				player.move().calculatePhysics(galaxy.planets)
-				galaxy.draw this
+				levels[currentLevel].redraw(this)
 				chrome.draw this, player
 			when MODE_DEAD
 				txt = "DEAD! Start over?"
