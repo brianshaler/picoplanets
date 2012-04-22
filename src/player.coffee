@@ -166,7 +166,7 @@ class Player
 		y += @g.h/2
 		if !@alive
 			@currentImage = if @burnt then @IMG_BURNT else @IMG_STANDING
-		@s.image @s[@currentImage + "_" + @direction], x-@width-2, y-@height
+		@s.image @s[@currentImage + "_" + @direction], x-@width/2, y-@height
 		#@s.noStroke()
 		#@s.fill 255, 0, 0
 		#@s.rect x-@width-2, y-@height, @width, @height
