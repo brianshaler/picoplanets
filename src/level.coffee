@@ -51,6 +51,7 @@ class Level
 	
 	start: () ->
 		@reset()
+		@player.y = -300
 		this
 	
 	redraw: (@s) ->
