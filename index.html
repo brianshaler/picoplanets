@@ -1,20 +1,33 @@
 <html>
 <head>
 	<title>Pico Planets</title>
+	<style>
+	@font-face {
+	    font-family: 'AudiowideRegular';
+	    src: url('fonts/audiowide-regular-webfont.eot');
+	    src: url('fonts/audiowide-regular-webfont.eot?#iefix') format('embedded-opentype'),
+	         url('fonts/audiowide-regular-webfont.woff') format('woff'),
+	         url('fonts/audiowide-regular-webfont.ttf') format('truetype'),
+	         url('fonts/audiowide-regular-webfont.svg#') format('svg');
+	    font-weight: normal;
+	    font-style: normal;
+	}
+	</style>
 	<script type="text/javascript" src="processing/processing.js"></script>
 	<script type="text/javascript" src="radio/radio.js"></script>
 	
 	<script type="text/javascript">
+	/* @pjs font="fonts/Audiowide-Regular.ttf"; */
+	
 	var sketch = function (func) {
-	    var canvas = document.createElement('canvas');
-	    document.getElementById('canvas').appendChild(canvas);
+	    var canvas = document.getElementById('canvas');
 	    canvas.style.display = 'block';
 	    new Processing(canvas, function (processing) { func.call(processing); });
 	}
 	</script>
 </head>
 <body>
-	<div id="canvas"></div>
+	<div id="canvas_div"><canvas id="canvas" /></div>
 	<p>
 		LEFT/RIGHT: Walk around on a planet<br />
 		SPACE: Tap for a short jump, hold to power up for a higher jump.

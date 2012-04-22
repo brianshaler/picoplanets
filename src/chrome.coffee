@@ -90,19 +90,37 @@ class Chrome
 	
 	startLevel: (@s, level) ->
 		@s.textAlign(@s.CENTER);
-		@drawText level.title, @w/2+100, @h/2 - 24, 24
-		@drawText level.description, @w/2+100, @h/2
+		@drawText level.title, @w/2+100, @h/2 - 24, 24, true
+		@drawText level.description, @w/2+100, @h/2, 16, true
 		@s.textAlign(@s.LEFT);
 	
 	dead: (@s) ->
 		@s.textAlign(@s.CENTER);
 		txt = "DEAD! Try again?"
-		@drawText txt, @w/2+100, @h/2
+		@drawText txt, @w/2+100, @h/2, 24, true
 		@s.textAlign(@s.LEFT);
 	
-	drawText: (txt, x, y, size) ->
+	drawText: (txt, x, y, size, centered) ->
+		if !txt
+			txt = ""
 		if !size
-			size = 15
+			size = 16
+		if centered == true
+			ctx.textAlign = "center"
+		else
+			ctx.textAlign = "left"
+		ctx.font = size+'px AudiowideRegular'
+		
+		lines = txt.split "\n"
+		for line in lines
+			ctx.fillStyle = 'black'
+			ctx.fillText(line, x + 1.5, y + 1.5)
+			ctx.fillStyle = 'white'
+			ctx.fillText(line, x + .5, y + .5)
+			y += size*1.4
+		
+		
+		###
 		@s.textFont(@s.loadedFont, size);
 		@s.fill 0
 		@s.text txt, x+1.5, y+1.5
@@ -110,3 +128,4 @@ class Chrome
 		@s.text txt, x+1.5, y+.5
 		@s.fill 255
 		@s.text txt, x+.5, y+.5
+		###

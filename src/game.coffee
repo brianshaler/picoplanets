@@ -25,7 +25,8 @@ player = new Player()
 chrome = new Chrome w, h
 
 canvas = document.getElementById('canvas')
-
+ctx = canvas.getContext('2d')
+ctx.font = '14px "AudiowideRegular"'
 
 levels = [
 	(new Level()).setTitle("Level 1: Hopscotch")
