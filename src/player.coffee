@@ -30,6 +30,7 @@ class Player
 		@maxSpeed = 3
 		@onGround = false
 		@walking = false
+		@nearAnyPlanet = true
 		
 		@maxOxygen = 1000
 		@oxygen = 1000
@@ -72,6 +73,7 @@ class Player
 		og = @onGround
 		@onGround = false
 		nearPlanet = false
+		@nearAnyPlanet = false
 		for planet in planets
 			do (planet) =>
 				if !og or planet.distance < 20
@@ -83,6 +85,9 @@ class Player
 				# within a reasonable distance of a planet
 				if dist < planet.radius
 					nearPlanet = true
+				
+				if dist < planet.radius * planet.gravitationalRange
+					@nearAnyPlanet = true
 				
 				# practically touching ground
 				if dist < 10
@@ -175,6 +180,8 @@ class Player
 		if @activated
 			if @oxygen > 0
 				@oxygen -= 2
+				if !@nearAnyPlanet
+					@oxygen -= (@nearestPlanet.distance - @nearestPlanet.radius*@nearestPlanet.gravitationalRange) / @nearestPlanet.radius
 			else
 				@death()
 		
@@ -202,6 +209,7 @@ class Player
 		@burnt = false
 		@alive = true
 		@activated = true
+		@nearAnyPlanet = true
 		this
 	
 	death: () ->
