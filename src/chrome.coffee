@@ -41,7 +41,7 @@ class Chrome
 		@s.fill c.r, c.g, c.b
 		@s.rect @marginLeft + @barPadding, 
 			@marginTop + @barPadding + 10, 
-			((@barWidth-@barPadding*2) * (@player.oxygen) / (@player.maxOxygen)),
+			(@barWidth-@barPadding*2) * @player.oxygen / @player.maxOxygen,
 			@barHeight - @barPadding*2
 		@drawText "oxygen", @marginLeft, @marginTop
 	
@@ -66,18 +66,6 @@ class Chrome
 		
 		paddingLeft = (@mapWidth - (max_x - min_x) * scale)/2
 		paddingTop = (@mapHeight - (max_y - min_y) * scale)/2
-		
-		###
-		@s.stroke 255
-		@s.beginShape()
-		for planet in level.planets
-			do (planet) =>
-				x = paddingLeft + (planet.x - min_x) * scale
-				y = paddingTop + (-planet.y - min_y) * scale
-				@s.vertex 0, 0
-				@s.vertex x, y
-		@s.endShape()
-		###
 		
 		for planet in level.planets
 			do (planet) =>
@@ -124,10 +112,10 @@ class Chrome
 		@s.textAlign(@s.LEFT);
 	
 	dead: (@s) ->
-		@s.textAlign(@s.CENTER);
+		@s.textAlign @s.CENTER
 		txt = "DEAD! Try again?"
 		@drawText txt, @w/2+100, @h/2, 24, true
-		@s.textAlign(@s.LEFT);
+		@s.textAlign @s.LEFT
 	
 	drawText: (txt, x, y, size, centered) ->
 		if !txt
@@ -138,23 +126,12 @@ class Chrome
 			ctx.textAlign = "center"
 		else
 			ctx.textAlign = "left"
-		ctx.font = size+'px AudiowideRegular'
+		ctx.font = size + 'px AudiowideRegular'
 		
 		lines = txt.split "\n"
 		for line in lines
 			ctx.fillStyle = 'black'
-			ctx.fillText(line, x + 1.5, y + 1.5)
+			ctx.fillText line, x + 1.5, y + 1.5
 			ctx.fillStyle = 'white'
-			ctx.fillText(line, x + .5, y + .5)
+			ctx.fillText line, x + .5, y + .5
 			y += size*1.4
-		
-		
-		###
-		@s.textFont(@s.loadedFont, size);
-		@s.fill 0
-		@s.text txt, x+1.5, y+1.5
-		@s.text txt, x+.5, y+1.5
-		@s.text txt, x+1.5, y+.5
-		@s.fill 255
-		@s.text txt, x+.5, y+.5
-		###

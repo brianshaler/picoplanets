@@ -1,13 +1,12 @@
 class Planet extends Mass
-	constructor: (_x, _y, _radius, _mass) ->
+	constructor: (@x, @y, @radius, @mass) ->
+		super @x, @y, @radius, @mass
+		@goal = false
+		@markerColor = [222, 222, 222]
 		lightness = Math.random()*50
-		this.color = [Math.random()*lightness + 180, Math.random()*lightness + 180, Math.random()*lightness + 180]
-		super _x, _y, _radius, _mass
+		@color = [Math.random()*lightness + 180, Math.random()*lightness + 180, Math.random()*lightness + 180]
 	
 	setGoal: () ->
-		this.goal = true
-		this.color = [110, 200, 130]
-		this.markerColor = [0, 255, 0]
-	
-	color: [255, 255, 255]
-	markerColor: [222, 222, 222]
+		@goal = true
+		@color = [110, 200, 130]
+		@markerColor = [0, 255, 0]

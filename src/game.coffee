@@ -18,6 +18,11 @@ MODE_DEAD = "dead"
 MODE_FINISH = "finish"
 MODE_FINAL = "final"
 
+PI = Math.PI
+HALF_PI = PI/2
+TWO_PI = PI*2
+NO_PIE = ":-("
+
 playMode = MODE_INTRO
 
 
@@ -25,10 +30,13 @@ playMode = MODE_INTRO
 player = new Player()
 chrome = new Chrome w, h
 
-canvas = document.getElementById('canvas')
-ctx = canvas.getContext('2d')
+# using canvas context for custom typeface since processing.js wasn't working..
+canvas = document.getElementById 'canvas'
+ctx = canvas.getContext '2d'
 ctx.font = '14px "AudiowideRegular"'
 
+
+# set up Levels
 levels = [
 	(new Level()).setTitle("Level 1: Hopscotch")
 		.setDescription("Get to the green planet for your oxygen runs out!\n\nUse LEFT/RIGHT arrow keys to walk around on planets.\n\nHold SPACE to jump, but watch the jump meter.\nJump too high, and you'll drift off into space!\n\n(click here or hit SPACE to begin)")
@@ -43,9 +51,7 @@ levels = [
 		])
 		.setGoal(
 			new Planet 300, 650, 90
-		).setPosition({
-			x: -50, y: -40
-		}).setOxygen(1200)
+		).setPosition(x: -50, y: -40).setOxygen(1200)
 		.setJump(40),
 	(new Level()).setTitle("Level 2: Sunburn")
 		.setDescription("Watch out for hazards! The sun is HOT!")
@@ -60,9 +66,7 @@ levels = [
 		])
 		.setGoal(
 			new Planet 800, 850, 60
-		).setPosition({
-			x: -50, y: -50
-		}).setOxygen(1400)
+		).setPosition(x: -50, y: -50).setOxygen(1400)
 		.setJump(40),
 	(new Level()).setTitle("Level 3: Total Eclipse of the Target")
 		.setDescription("This is not a straight shot. Use gravity to your advantage!")
@@ -77,13 +81,13 @@ levels = [
 		])
 		.setGoal(
 			new Planet -100, 950, 60
-		).setPosition({
-			x: 100, y: -625
-		}).setOxygen(1600)
+		).setPosition(x: 100, y: -625).setOxygen(1600)
 		.setJump(40)
 ]
 window.levels = levels
 
+
+# gameplay triggers
 startGame = () ->
 	levels[currentLevel].start()
 	playMode = MODE_PLAY
@@ -93,20 +97,20 @@ startOver = () ->
 	startGame()
 
 death = () ->
-	#levels[currentLevel].reset()
 	playMode = MODE_DEAD
 
 finish = () ->
-	#levels[currentLevel].reset()
 	if currentLevel < levels.length - 1
 		currentLevel += 1
 		playMode = MODE_FINISH
 	else
 		playMode = MODE_FINAL
 
-radio(player.DEAD).subscribe(death)
-radio(player.FINISHED).subscribe(finish)
+radio(player.DEAD).subscribe death
+radio(player.FINISHED).subscribe finish
 
+
+# interactivity / events
 document.onkeyup = (e) ->
 	if key_dir == KEY_SPACE
 		player.jump()
@@ -121,23 +125,23 @@ document.onkeydown = (e) ->
 		when KEY_UP
 			if key_dir != KEY_UP and 1 == 2
 				key_dir = KEY_UP
-				player.accel (rotation - Math.PI), 10
+				player.accel (rotation - PI), 10
 		when KEY_DOWN
 			if key_dir != KEY_DOWN and 1 == 2
 				key_dir = KEY_DOWN
-				player.accel (rotation), 10
+				player.accel rotation, 10
 		when KEY_LEFT
 			if key_dir != KEY_LEFT and player.onGround
 				#key_dir = KEY_LEFT
 				player.direction = player.DIR_LEFT
 				player.walking = true
-				player.accel (rotation - Math.PI/2), 3, true
+				player.accel rotation - HALF_PI, 3, true
 		when KEY_RIGHT
 			if key_dir != KEY_RIGHT and player.onGround
 				#key_dir = KEY_RIGHT
 				player.direction = player.DIR_RIGHT
 				player.walking = true
-				player.accel (rotation + Math.PI/2), 3, true
+				player.accel rotation + HALF_PI, 3, true
 		when KEY_SPACE
 			if key_dir != KEY_SPACE and player.onGround
 				key_dir = KEY_SPACE
@@ -155,7 +159,6 @@ document.onkeydown = (e) ->
 					startOver()
 		else
 			cont = true
-			#console.log e.keyCode
 	if !cont
 		e.preventDefault()
 
@@ -173,12 +176,14 @@ canvas.onclick = (e) ->
 			startOver()
 
 
+# global color functionality (currently only used in chrome.coffee)
 runningOutColors = [
 	{p: 0, r: 255, g: 0, b: 0},
 	{p: .3, r: 255, g: 255, b: 0},
 	{p: .7, r: 0, g: 200, b: 0}
 ]
 
+# fancy color blending based on a ruleset like above
 getColor = (val, min, max, rules) ->
 	p = (val-min)/(max-min)
 	if p < 0 then p = 0
@@ -204,6 +209,7 @@ getColor = (val, min, max, rules) ->
 	}
 
 
+# rendering stars in the background
 starBrightness = 155
 setPixel = (s, pixels, i) ->
 	#pixels.setPixel i, (s.color 0)
@@ -211,27 +217,29 @@ setPixel = (s, pixels, i) ->
 		pixels.setPixel i, (s.color starBrightness)
 	
 
+# processing.js boilerplate
 sketch ->
-
+	# setup() is run once upon instantiation
 	@setup = =>
 		@size w, h
 		@background 0
 		@noFill()
 		@frameRate 30
-		@loadedFont = @loadFont("fonts/Audiowide-Regular.ttf")
+		@loadedFont = @loadFont "fonts/Audiowide-Regular.ttf"
 		imgs = [player.IMG_STANDING, player.IMG_WALKING, player.IMG_SQUATTING, player.IMG_FLYING, player.IMG_BURNT]
 		dirs = [player.DIR_LEFT, player.DIR_RIGHT]
 		for img in imgs
 			for dir in dirs
-				this[img+"_"+dir] = @loadImage("images/spiff/"+img+"_"+dir+".png")
-		@stars = @createImage(1000, 1000, @ARGB)
-		@splash = @loadImage("images/splash.png")
+				this[img+"_"+dir] = @loadImage "images/spiff/"+img+"_"+dir+".png"
+		@stars = @createImage 1000, 1000, @ARGB
+		@splash = @loadImage "images/splash.png"
 		p = @stars.pixels.toArray()
 		setPixel this, @stars.pixels, i for pixel, i in p
-		@stars.updatePixels();
+		@stars.updatePixels()
 		chrome.s = this
 		this
 
+	# draw() is run for every frame
 	@draw = =>
 		@background 0
 		
@@ -242,7 +250,7 @@ sketch ->
 				chrome.drawMap this, levels[currentLevel]
 				chrome.startLevel this, levels[currentLevel]
 			when MODE_PLAY
-				levels[currentLevel].redraw(this)
+				levels[currentLevel].redraw this
 				chrome.draw this, player
 			when MODE_DEAD
 				chrome.drawMap this, levels[currentLevel]
@@ -250,7 +258,6 @@ sketch ->
 			when MODE_FINISH
 				chrome.drawMap this, levels[currentLevel]
 				chrome.startLevel this, levels[currentLevel]
-				chrome.drawText txt, w/2 - @textWidth(txt)/2, h/2
 			when MODE_FINAL
 				txt = "FINISHED! Start over?"
-				chrome.drawText txt, w/2 - @textWidth(txt)/2, h/2
+				chrome.drawText txt, w/2 - (@textWidth txt)/2, h/2

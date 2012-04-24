@@ -1,31 +1,29 @@
 class Galaxy
-	planets: []
-	offsetX: 0
-	offsetY: 0
-	w: 100
-	h: 100
-	rotation: 0
-	stars: false
-	
 	constructor: () ->
+		@planets = []
+		@offsetX = 0
+		@offsetY = 0
+		@w = 100
+		@h = 100
+		@rotation = 0
+		@stars = false
+		@player = false
+		@sketch = false
 	
-	setStageSize: (_w, _h) ->
-		this.w = _w
-		this.h = _h
+	setStageSize: (@w, @h) ->
 		this
 	
-	draw: (_sketch) ->
-		this.sketch = _sketch
-		this.drawStars()
-		this.drawPlanet planet for planet in this.planets
-		this.player.draw this.sketch, this, this.rotation
+	draw: (@sketch) ->
+		@drawStars()
+		@drawPlanet planet for planet in @planets
+		@player.draw @sketch, this, @rotation
 	
 	drawPlanet: (planet) ->
-		planet.draw this.sketch, this, this.rotation
+		planet.draw @sketch, this, @rotation
 	
 	drawStars: () ->
-		this.sketch.translate(this.w/2, this.h/2)
-		this.sketch.rotate(this.rotation)
-		this.sketch.image this.sketch.stars, -500, -500
-		this.sketch.rotate(-this.rotation)
-		this.sketch.translate(-this.w/2, -this.h/2)
+		@sketch.translate(@w/2, @h/2)
+		@sketch.rotate(@rotation)
+		@sketch.image @sketch.stars, -500, -500
+		@sketch.rotate(-@rotation)
+		@sketch.translate(-@w/2, -@h/2)

@@ -1,91 +1,88 @@
 class Level
 	constructor: () ->
-		this.galaxy = new Galaxy()
+		@galaxy = new Galaxy()
+		@title = ""
+		@description = ""
+		@planets = []
+		@startingPosition = x: 0, y: 0
+		@startingOxygen = 1000
+		@maxJump = 40
+		@rotation = 0
 		this
 	
-	title: ""
-	description: ""
-	planets: []
-	startingPosition: {x: 0, y: 0}
-	startingOxygen: 1000
-	maxJump: 40
-	rotation: 0
-	
 	setTitle: (t) ->
-		this.title = t
+		@title = t
 		this
 	
 	setDescription: (d) ->
-		this.description = d
+		@description = d
 		this
 	
 	setStageSize: (_w, _h) ->
-		this.w = _w
-		this.h = _h
-		this.galaxy.setStageSize this.w, this.h
+		@w = _w
+		@h = _h
+		@galaxy.setStageSize @w, @h
 		this
 		
 	setPlayer: (_player) ->
-		this.player = _player
-		this.galaxy.player = this.player
+		@player = _player
+		@galaxy.player = @player
 		this
 	
 	setPlanets: (_planets) ->
-		this.planets = _planets
-		this.galaxy.planets = this.planets
+		@planets = _planets
+		@galaxy.planets = @planets
 		this
 	
 	setGoal: (p) ->
 		p.setGoal()
-		this.planets.push p
+		@planets.push p
 		this
 	
 	setPosition: (sp) ->
-		this.startingPosition = sp
+		@startingPosition = sp
 		this
 	
 	setOxygen: (o) ->
-		this.startingOxygen = o
+		@startingOxygen = o
 		this
 	
 	setJump: (j) ->
-		this.startingJump = j
+		@startingJump = j
 		this
 	
 	reset: () ->
-		this.player.x = this.galaxy.offsetX = parseInt(this.startingPosition.x)
-		this.player.y = this.galaxy.offsetY = parseInt(this.startingPosition.y)
-		this.player.oxygen = this.player.maxOxygen = this.startingOxygen
-		this.player.maxJump = this.maxJump
-		this.player.reset()
-		this.rotation = 0
+		@player.x = @galaxy.offsetX = parseInt @startingPosition.x
+		@player.y = @galaxy.offsetY = parseInt @startingPosition.y
+		@player.oxygen = @player.maxOxygen = @startingOxygen
+		@player.maxJump = @maxJump
+		@player.reset()
+		@rotation = 0
 	
 	start: () ->
-		this.reset()
-		this.player.calculatePhysics this.galaxy.planets
-		nearestPlanet = this.player.findNearestPlanet this.galaxy.planets, false
-		idealRotation = (Math.PI/2 - Math.atan2 nearestPlanet.x - this.player.x, nearestPlanet.y - this.player.y)
-		this.rotation = idealRotation
-		window.rotation = this.rotation
+		@reset()
+		@player.calculatePhysics @galaxy.planets
+		nearestPlanet = @player.findNearestPlanet @galaxy.planets, false
+		idealRotation = HALF_PI - Math.atan2 nearestPlanet.x - @player.x, nearestPlanet.y - @player.y
+		@rotation = idealRotation
+		window.rotation = @rotation
 		this
 	
-	redraw: (_s) ->
-		this.s = _s
-		nearestPlanet = this.player.findNearestPlanet this.galaxy.planets, false
-		idealRotation = (Math.PI/2 - Math.atan2 nearestPlanet.x - this.player.x, nearestPlanet.y - this.player.y)
-		diff = Math.abs idealRotation - this.rotation
-		if (Math.abs idealRotation - Math.PI*2 - this.rotation) < diff
-			idealRotation = idealRotation - Math.PI*2
-		if (Math.abs idealRotation + Math.PI*2 - this.rotation) < diff
-			idealRotation = idealRotation + Math.PI*2
-		this.rotation += (idealRotation - this.rotation) * .08
-		if this.rotation < 0
-			this.rotation += Math.PI*2
-		this.rotation = this.rotation % (Math.PI*2)
-		this.galaxy.rotation = this.rotation
-		this.galaxy.offsetX += parseFloat(this.player.x - this.galaxy.offsetX) * .3
-		this.galaxy.offsetY += parseFloat(this.player.y - this.galaxy.offsetY) * .3
-		if this.player.activated
-			this.player.move().calculatePhysics(this.galaxy.planets)
-		this.galaxy.draw this.s
+	redraw: (@sketch) ->
+		nearestPlanet = @player.findNearestPlanet @galaxy.planets, false
+		idealRotation = HALF_PI - Math.atan2 nearestPlanet.x - @player.x, nearestPlanet.y - @player.y
+		diff = Math.abs idealRotation - @rotation
+		if (Math.abs idealRotation - TWO_PI - @rotation) < diff
+			idealRotation = idealRotation - TWO_PI
+		if (Math.abs idealRotation + TWO_PI - @rotation) < diff
+			idealRotation = idealRotation + TWO_PI
+		@rotation += (idealRotation - @rotation) * .08
+		if @rotation < 0
+			@rotation += TWO_PI
+		@rotation = @rotation % (TWO_PI)
+		@galaxy.rotation = @rotation
+		@galaxy.offsetX += (parseFloat @player.x - @galaxy.offsetX) * .3
+		@galaxy.offsetY += (parseFloat @player.y - @galaxy.offsetY) * .3
+		@player.move().calculatePhysics @galaxy.planets
+		@galaxy.draw @sketch
 		this

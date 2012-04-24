@@ -1,58 +1,73 @@
 class Player
 	constructor: () ->
+		# @direction: Player's last direction to show correct version of the sprite
 		@direction = @DIR_RIGHT
+		# @currentImage: The current sprite may be standing, walking, squatting, flying, burnt...
 		@currentImage = @IMG_STANDING
+		
+		# whether or not the player can control the character
+		@activated = false
+		# u dead yet?
+		@alive = true
+		# if you die a certain way...
+		@burnt = false
+		# player's position relative to the galactic center
+		@x = 0
+		@y = 0
+		
+		@width = 20
+		@height = 25
+		
+		@velocityX = 0
+		@velocityY = 0
+		
+		# cached reference to a planet, result of @findNearestPlanet()
+		@nearestPlanet = false
+		@jumping = false
+		@jumpVelocity = 0
+		@maxJump = 40
+		@minJump = 10
+		@maxSpeed = 3
+		@onGround = false
+		@walking = false
+		
+		@maxOxygen = 1000
+		@oxygen = 1000
+		
+		@lastImageChange = 0
+		
+		# @walkingImage: When set to walking, this will periodically change from standing to walking and back
 		@walkingImage = @IMG_WALKING
 		walkcb = =>
+			# toggles between standing and walking
 			@switchWalk()
 		setInterval walkcb, 200
-	
-	activated: false
-	alive: true
-	burnt: false
-	x: 0
-	y: 0
-	width: 20
-	height: 25
-	velocityX: 0
-	velocityY: 0
-	nearestPlanet: false
-	jumping: false
-	jumpVelocity: 0
-	maxJump: 40
-	minJump: 10
-	maxSpeed: 3
-	onGround: false
-	walking: false
-	
-	maxOxygen: 1000
-	oxygen: 1000
-	
+		
+	# static vars
 	DEAD: "dead"
 	FINISHED: "finished"
-	
 	DIR_RIGHT: "right"
 	DIR_LEFT: "left"
-	
 	IMG_STANDING: "standing"
 	IMG_WALKING: "walking"
 	IMG_SQUATTING: "squatting"
 	IMG_FLYING: "flying"
 	IMG_BURNT: "burnt"
 	
-	walkingImage: ""
-	currentImage: ""
-	lastImageChange: 0
-	
 	accel: (angle, force, cap) ->
 		if @activated
 			@velocityX += (Math.cos angle) * force
 			@velocityY += (Math.sin angle) * force
 			if cap and Math.sqrt (Math.pow @velocityX, 2) + (Math.pow @velocityY, 2) > @maxSpeed
-				angle = Math.PI/2 - Math.atan2 @velocityX, @velocityY
+				angle = HALF_PI - Math.atan2 @velocityX, @velocityY
 				@velocityX = (Math.cos angle) * @maxSpeed
 				@velocityY = (Math.sin angle) * @maxSpeed
 	
+	###
+	@calculatePhysics()
+	runs through planets array, calling .physics() for each
+	sets @onGround and @walking
+	###
 	calculatePhysics: (planets) ->
 		og = @onGround
 		@onGround = false
@@ -60,21 +75,29 @@ class Player
 		for planet in planets
 			do (planet) =>
 				if !og or planet.distance < 20
+					# magic happens: see mass.coffee
+					# side-effect: planet.physics(player) alters player.velocityX and player.velocityY
 					planet.physics this
 				dist = planet.distance
-				if (dist < planet.radius)
+				
+				# within a reasonable distance of a planet
+				if dist < planet.radius
 					nearPlanet = true
+				
+				# practically touching ground
 				if dist < 10
 					@onGround = true
 					@velocityX *= .99
 					@velocityY *= .99
 					
 					if dist <= 0
-						if !planet.safe
-							@death()
-						if planet.goal
-							@finished()
-						angle = Math.PI/2 - Math.atan2 planet.x-@x, planet.y-@y
+						# maybe death() and finished() should be called from planet.onContact(player) ?
+						if @activated
+							if !planet.safe
+								@death()
+							if planet.goal
+								@finished()
+						angle = HALF_PI - Math.atan2 planet.x-@x, planet.y-@y
 						@x = planet.x - (Math.cos angle) * planet.radius
 						@y = planet.y - (Math.sin angle) * planet.radius
 					if dist < 5 && !@walking
@@ -82,8 +105,10 @@ class Player
 						@velocityY *= 0.5
 						
 		if nearPlanet
+			# maybe it's like an atmosphere? better for gameplay to slow down and land
 			@velocityX *= .99
 			@velocityY *= .99
+		
 		if !@onGround
 			@walking = false
 						
@@ -95,17 +120,19 @@ class Player
 			@y += @velocityY
 		d = new Date()
 		t = d.getTime()
-		if @onGround and !@jumping
-			if Math.abs(@velocityX) + Math.abs(@velocityY) > 0.1
-				@currentImage = @walkingImage
+		if @activated and @alive
+			if @onGround and !@jumping
+				if (Math.abs @velocityX) + (Math.abs @velocityY) > 0.1
+					@currentImage = @walkingImage
+				else
+					@currentImage = @IMG_STANDING
 			else
-				@currentImage = @IMG_STANDING
-		else
-			if @jumping
-				@currentImage = @IMG_SQUATTING
-			else
-				@currentImage = @IMG_FLYING
+				if @jumping
+					@currentImage = @IMG_SQUATTING
+				else
+					@currentImage = @IMG_FLYING
 		
+		# pshaw! there's no friction in SPACE!!
 		#@velocityX *= .1
 		#@velocityY *= .1
 		this
@@ -116,7 +143,7 @@ class Player
 		else
 			@walkingImage = @IMG_STANDING
 	
-	findNearestPlanet: (planets, log) ->
+	findNearestPlanet: (planets) ->
 		@nearestPlanet = planets[0]
 		nearestDistance = @nearestPlanet.distance
 		for planet in planets
@@ -125,8 +152,6 @@ class Player
 				if dist < nearestDistance
 					@nearestPlanet = planet
 					nearestDistance = dist
-				else
-					#console.log "Nope! " + @distanceTo(planet) + " > " + nearestDistance if log
 		@nearestPlanet
 	
 	startJumping: () ->
@@ -134,7 +159,6 @@ class Player
 			@jumping = true
 			@jumpVelocity = @minJump
 			cb = =>
-				#console.log "cb: "+@jumpVelocity
 				@jumpVelocity = if @jumpVelocity + 1 < @maxJump then @jumpVelocity + 1 else @maxJump
 				if @jumping then setTimeout cb, 30
 			cb()
@@ -142,34 +166,33 @@ class Player
 	
 	jump: () ->
 		if @alive and @activated
-			#console.log "Jump! "+@jumpVelocity
-			@accel (@g.rotation - Math.PI), @jumpVelocity
+			@accel @galaxy.rotation - Math.PI, @jumpVelocity
 			@jumping = false
 			@jumpVelocity = @minJump
 		this
 	
-	draw: (@s, @g) ->
+	draw: (@sketch, @galaxy) ->
 		if @activated
 			if @oxygen > 0
 				@oxygen -= 2
 			else
 				@death()
 		
-		x = @x - @g.offsetX
-		y = @y - @g.offsetY
+		x = @x - @galaxy.offsetX
+		y = @y - @galaxy.offsetY
 		angle = Math.atan2 x, y
 		dist = Math.sqrt (Math.pow x, 2) + (Math.pow y, 2)
-		angle += @g.rotation
+		angle += @galaxy.rotation
 		x = (Math.cos angle) * dist
 		y = (Math.sin angle) * dist
-		x += @g.w/2
-		y += @g.h/2
-		if !@alive
-			@currentImage = if @burnt then @IMG_BURNT else @IMG_STANDING
-		@s.image @s[@currentImage + "_" + @direction], x-@width/2, y-@height
-		#@s.noStroke()
-		#@s.fill 255, 0, 0
-		#@s.rect x-@width-2, y-@height, @width, @height
+		x += @galaxy.w/2
+		y += @galaxy.h/2
+		if @burnt
+			@currentImage = @IMG_BURNT
+		@sketch.image @sketch[@currentImage + "_" + @direction], x-@width/2, y-@height
+		#@sketch.noStroke()
+		#@sketch.fill 255, 0, 0
+		#@sketch.rect x-@width-2, y-@height, @width, @height
 	
 	reset: () ->
 		@velocityX = @velocityY = 0
@@ -193,4 +216,3 @@ class Player
 		cb = =>
 			radio(@FINISHED).broadcast()
 		setTimeout cb, 400
-		
