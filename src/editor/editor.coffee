@@ -49,7 +49,7 @@ class @Editor
 			oxygen: 1000
 			planets: []
 			startingPosition:
-				x: @player.x
+				x: -@player.x
 				y: @player.y
 			goal: null
 		

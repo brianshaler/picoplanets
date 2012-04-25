@@ -81,8 +81,8 @@ class Planet
 			@editor.deselectAll()
 			@selected = true
 			@startTime -= 99999
-		@startX = @planet.attr("cx")/@editor.scale - @stageX*@editor.scale
-		@startY = @planet.attr("cy")/@editor.scale - @stageY*@editor.scale
+		@startX = @planet.attr("cx") / @editor.scale - @stageX / @editor.scale
+		@startY = @planet.attr("cy") / @editor.scale - @stageY / @editor.scale
 		@dragDistance = 0
 		@draw()
 	
@@ -121,6 +121,6 @@ class Planet
 	output: () ->
 		obj = 
 			type: @type
-			x: @x
+			x: -@x
 			y: @y
 			radius: @radius

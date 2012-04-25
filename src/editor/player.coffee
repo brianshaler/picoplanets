@@ -57,8 +57,8 @@ class Player
 			@editor.deselectAll()
 			@selected = true
 			@startTime -= 99999
-		@startX = @selector.attr("cx")/@editor.scale - @stageX*@editor.scale
-		@startY = @selector.attr("cy")/@editor.scale - @stageY*@editor.scale
+		@startX = @selector.attr("cx") / @editor.scale - @stageX / @editor.scale
+		@startY = @selector.attr("cy") / @editor.scale - @stageY / @editor.scale
 		@dragDistance = 0
 		@draw()
 	
