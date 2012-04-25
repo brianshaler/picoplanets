@@ -6,15 +6,29 @@
 fs = require 'fs'
 {exec, spawn} = require 'child_process'
 
+project = 'default'
+
 # order of files in `inFiles` is important
 config =
   srcDir: 'src'
   outDir: 'lib'
-  inFiles: [ 'mass', 'planet', 'sun', 'player', 'galaxy', 'level', 'chrome', 'game' ]
-  outFile: 'game'
+  inFiles: 
+    default: [ 'mass', 'planet', 'sun', 'player', 'galaxy', 'level', 'chrome', 'game' ],
+    editor: ['editor']
+  outFile: 
+    default: 'game',
+    editor: 'editor'
 
-outJS = "#{config.outDir}/#{config.outFile}"
-strFiles = ("#{config.srcDir}/#{file}.coffee" for file in config.inFiles).join ' '
+xoutJS = "#{config.outDir}/#{config.outFile}"
+xstrFiles = ("#{config.srcDir}/#{file}.coffee" for file in config.inFiles).join ' '
+
+outFile = (key) ->
+  key = if key? then key else "default"
+  "#{config.outDir}/#{config.outFile[key]}"
+
+inFiles = (key) ->
+  key = if key? then key else "default"
+  ("#{config.srcDir}/#{file}.coffee" for file in config.inFiles[key]).join ' '
 
 # deal with errors from child processes
 exerr = (err, sout, serr)->
@@ -28,13 +42,18 @@ task 'doc', 'generate documentation for *.coffee files', ->
 # this will keep the non-minified compiled and joined file updated as files in
 # `inFile` change.
 task 'watch', 'watch and compile changes in source dir', ->
-  watch = exec "coffee -j #{outJS}.js -cw #{strFiles}"
+  _outFile = outFile(project)
+  _inFiles = inFiles(project)
+  watch = exec "coffee -j #{_outFile}.js -cw #{_inFiles}"
   watch.stdout.on 'data', (data)-> process.stdout.write data
 
 task 'build', 'join and compile *.coffee files', ->
-  exec "coffee -j #{outJS}.js -c #{strFiles}", exerr
+  _outFile = outFile(project)
+  _inFiles = inFiles(project)
+  exec "coffee -j #{_outFile}.js -c #{_inFiles}", exerr
 
-task 'bam', 'build and minify', ->
+task 'build:editor', 'join and compile editor *.coffee files', ->
+  project = 'editor'
   invoke 'build'
 
 # watch files and run tests automatically
