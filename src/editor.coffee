@@ -8,6 +8,7 @@ class @Editor
 	stageY: 0
 	dragStartX: 0
 	dragStartY: 0
+	scale: 0.5
 	
 	constructor: (div_id) ->
 		@output = document.getElementById "output"
@@ -19,10 +20,13 @@ class @Editor
 		
 		@planets = []
 		
+		@cx = @w / 2 / @scale
+		@cy = @h / 2 / @scale
+		
 		@player = new Player this, @paper, @cx, @cy
 		
-		@addMass({x: @cx, y: @cy-200, radius: 70}).makeGoal()
-		@addMass({x: @cx, y: @cy+60, radius: 60})
+		@addMass({x: @cx, y: (@cy-200), radius: 70}).makeGoal()
+		@addMass({x: @cx, y: (@cy+60), radius: 60})
 	
 	startDraggingStage: (x, y, e) ->
 		@dragStartX = @stageX

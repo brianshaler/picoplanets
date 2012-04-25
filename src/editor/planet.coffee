@@ -4,8 +4,9 @@ class Planet
 	sunColor: "rgb(255, 200, 50)"
 	
 	selectorColor: "#AAEEFF"
-	selectorPadding: 8
+	selectorPadding: 6
 	hitAreaPadding: 10
+	maxRadius: 120
 	
 	constructor: (@editor, @paper, @x, @y, @radius) ->
 		@goal = false
@@ -22,7 +23,7 @@ class Planet
 		
 		@selector = @paper.circle 0, 0, @radius+@selectorPadding
 		@selector.attr("stroke", @selectorColor)
-			.attr("stroke-width", 3)
+			.attr("stroke-width", 2)
 		
 		@button = @paper.circle 0, 0, @radius+@hitAreaPadding
 		@button.attr("fill", "#0F0")
@@ -30,9 +31,9 @@ class Planet
 			.attr("opacity", 0)
 			.drag(@moveHandler, @startMoving, @stopMoving, this, this, this)
 		
-		@resizer = @paper.circle 0, 0, 5
+		@resizer = @paper.circle 0, 0, 4
 		@resizer.attr("stroke", @selectorColor)
-			.attr("stroke-width", 3)
+			.attr("stroke-width", 2)
 			.attr("fill", "#000")
 		
 		@resizeButton = @paper.circle 0, 0, 10
@@ -63,37 +64,40 @@ class Planet
 			@resizer.hide()
 			@resizeButton.hide()
 		
-		_x = @stageX + @x
-		_y = @stageY + @y
-		@planet.attr {cx: _x, cy: _y, r: @radius}
-		@selector.attr {cx: _x, cy: _y, r: @radius+@selectorPadding}
-		@button.attr {cx: _x, cy: _y, r: @radius+@hitAreaPadding}
-		@resizer.attr {cx: _x + @radius + @selectorPadding, cy: _y}
-		@resizeButton.attr {cx: _x + @radius + @selectorPadding, cy: _y}
+		_x = @stageX + @x*@editor.scale
+		_y = @stageY + @y*@editor.scale
+		r = @radius*@editor.scale
+		@planet.attr {cx: _x, cy: _y, r: r}
+		@selector.attr {cx: _x, cy: _y, r: r+@selectorPadding}
+		@button.attr {cx: _x, cy: _y, r: r+@hitAreaPadding}
+		@resizer.attr {cx: _x + r + @selectorPadding, cy: _y}
+		@resizeButton.attr {cx: _x + r + @selectorPadding, cy: _y}
 		
 		this
 	
 	startMoving: (x, y, e) ->
+		@startTime = (new Date()).getTime()
 		if !@selected
 			@editor.deselectAll()
 			@selected = true
-		@startX = @planet.attr("cx") - @stageX
-		@startY = @planet.attr("cy") - @stageY
+			@startTime -= 99999
+		@startX = @planet.attr("cx")/@editor.scale - @stageX*@editor.scale
+		@startY = @planet.attr("cy")/@editor.scale - @stageY*@editor.scale
 		@dragDistance = 0
-		@startTime = (new Date()).getTime()
 		@draw()
 	
 	stopMoving: () ->
 		###
 		console.log "stopDragging()"
 		###
-		dragTime = @startTime - (new Date()).getTime()
+		dragTime = (new Date()).getTime() - @startTime
 		if @dragDistance < 4 && dragTime < 1000
-			@selected = true
+			@selected = false
+		@editor.redrawAll()
 	
 	moveHandler: (dx, dy, x, y, e) ->
-		@x = @startX + dx
-		@y = @startY + dy
+		@x = @startX + dx/@editor.scale
+		@y = @startY + dy/@editor.scale
 		@draw()
 	
 	startResizing: () ->
@@ -105,11 +109,13 @@ class Planet
 		###
 		console.log "stopDragging()"
 		###
+		@editor.redrawAll()
 	
 	resizeHandler: (dx, dy, x, y, e) ->
 		_x = @planet.attr("cx")
 		_y = @planet.attr("cy")
-		@radius = (Math.sqrt (Math.pow (x-_x), 2) + (Math.pow (y-_y), 2)) - @selectorPadding*2
+		@radius = (Math.round (Math.sqrt (Math.pow (x-_x), 2) + (Math.pow (y-_y), 2)) - @selectorPadding*2) / @editor.scale
+		@radius = if @radius < @maxRadius then @radius else @maxRadius
 		@draw()
 	
 	output: () ->

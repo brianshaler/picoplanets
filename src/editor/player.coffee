@@ -1,7 +1,7 @@
 class Player
 	img: "images/spiff/standing_left.png"
 	selectorColor: "#AAEEFF"
-	selectorRadius: 22
+	selectorRadius: 24
 	iconWidth: 20
 	iconHeight: 25
 	
@@ -11,17 +11,17 @@ class Player
 		@stageX = 0
 		@stageY = 0
 		
-		@player = @paper.image @img, 0, 0, @iconWidth, @iconHeight
+		@player = @paper.image @img, 0, 0, @iconWidth*@editor.scale, @iconHeight*@editor.scale
 		
-		@selector = @paper.circle 0, 0, @selectorRadius
+		@selector = @paper.circle 0, 0, @selectorRadius*@editor.scale
 		@selector.attr("stroke", @selectorColor)
-			.attr("stroke-width", 3)
+			.attr("stroke-width", 2)
 		
-		@selectorDot = @paper.circle 0, 0, 3
+		@selectorDot = @paper.circle 0, 0, 2
 		@selectorDot.attr("stroke", "none")
 			.attr("fill", @selectorColor)
 		
-		@button = @paper.circle 0, 0, @selectorRadius
+		@button = @paper.circle 0, 0, @selectorRadius*@editor.scale
 		@button.attr("fill", "#0F0")
 			.attr("stroke", "none")
 			.attr("opacity", 0)
@@ -37,9 +37,9 @@ class Player
 			@selector.hide()
 			@selectorDot.hide()
 		
-		_x = @stageX + @x
-		_y = @stageY + @y
-		@player.attr {x: _x-@iconWidth/2, y: _y-@iconHeight}
+		_x = @stageX + @x*@editor.scale
+		_y = @stageY + @y*@editor.scale
+		@player.attr {x: _x-@iconWidth/2*@editor.scale, y: _y-@iconHeight*@editor.scale}
 		@selector.attr {cx: _x, cy: _y}
 		@selectorDot.attr {cx: _x, cy: _y}
 		@button.attr {cx: _x, cy: _y}
@@ -52,25 +52,27 @@ class Player
 		@button.toFront()
 	
 	startMoving: (x, y, e) ->
+		@startTime = (new Date()).getTime()
 		if !@selected
 			@editor.deselectAll()
 			@selected = true
-		@startX = @selector.attr("cx") - @stageX
-		@startY = @selector.attr("cy") - @stageY
+			@startTime -= 99999
+		@startX = @selector.attr("cx")/@editor.scale - @stageX*@editor.scale
+		@startY = @selector.attr("cy")/@editor.scale - @stageY*@editor.scale
 		@dragDistance = 0
-		@startTime = (new Date()).getTime()
 		@draw()
 	
 	stopMoving: () ->
 		###
 		console.log "stopDragging()"
 		###
-		dragTime = @startTime - (new Date()).getTime()
+		dragTime = (new Date()).getTime() - @startTime
 		if @dragDistance < 4 && dragTime < 1000
-			@selected = true
+			@selected = false
+		@editor.redrawAll()
 	
 	moveHandler: (dx, dy, x, y, e) ->
 		@dragDistance += (Math.abs dx) + (Math.abs dy)
-		@x = @startX + dx
-		@y = @startY + dy
+		@x = @startX + dx/@editor.scale
+		@y = @startY + dy/@editor.scale
 		@draw()
