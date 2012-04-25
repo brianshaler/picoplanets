@@ -7,7 +7,7 @@ class Planet
 	selectorPadding: 8
 	hitAreaPadding: 10
 	
-	constructor: (@paper, @x, @y, @radius) ->
+	constructor: (@editor, @paper, @x, @y, @radius) ->
 		@goal = false
 		@type = "planet"
 		@selected = false
@@ -75,7 +75,7 @@ class Planet
 	
 	startMoving: (x, y, e) ->
 		if !@selected
-			deselectAll()
+			@editor.deselectAll()
 			@selected = true
 		@startX = @planet.attr("cx") - @stageX
 		@startY = @planet.attr("cy") - @stageY

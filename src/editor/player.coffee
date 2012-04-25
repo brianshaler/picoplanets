@@ -5,7 +5,7 @@ class Player
 	iconWidth: 20
 	iconHeight: 25
 	
-	constructor: (@paper, @x, @y) ->
+	constructor: (@editor, @paper, @x, @y) ->
 		@selected = false
 		
 		@stageX = 0
@@ -53,7 +53,7 @@ class Player
 	
 	startMoving: (x, y, e) ->
 		if !@selected
-			deselectAll()
+			@editor.deselectAll()
 			@selected = true
 		@startX = @selector.attr("cx") - @stageX
 		@startY = @selector.attr("cy") - @stageY

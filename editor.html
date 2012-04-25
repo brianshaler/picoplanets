@@ -28,11 +28,14 @@
 <body>
 	<div style="width: 800px;">
 		<a href="http://picoplanets.com/"><strong>Pico Planets:</strong></a> Level Editor
-		<input type="button" style="float: right;" id="addPlanet" value="Add Planet" onclick="javascript: return addPlanet();" />
-		<input type="button" style="float: right;" id="addSun" value="Add Sun" onclick="javascript: return addSun();" />
+		<input type="button" style="float: right;" id="addPlanet" value="Add Planet" onclick="javascript: return editor.addPlanet();" />
+		<input type="button" style="float: right;" id="addSun" value="Add Sun" onclick="javascript: return editor.addSun();" />
 	</div>
 	<div id="canvas_div"></div>
 	<textarea id="output" style="width: 800px; height: 200px;"></textarea>
 	<script type="text/javascript" src="lib/editor.js"></script>
+	<script type="text/javascript">
+	var editor = new Editor("canvas_div");
+	</script>
 </body>
 </html>
