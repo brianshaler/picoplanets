@@ -14,7 +14,7 @@ config =
   outDir: 'lib'
   inFiles: 
     default: [ 'mass', 'planet', 'sun', 'player', 'galaxy', 'level', 'chrome', 'game' ],
-    editor: [ 'editor/planet', 'editor/player', 'editor']
+    editor: [ 'editor/planet', 'editor/player', 'editor/editor']
   outFile: 
     default: 'game',
     editor: 'editor'
