@@ -223,4 +223,4 @@ class Player
 		@activated = false
 		cb = =>
 			radio(@FINISHED).broadcast()
-		setTimeout cb, 400
+		setTimeout cb, 1000

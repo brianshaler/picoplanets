@@ -67,16 +67,21 @@ class Mass
 			y += h2
 			
 			@sketch.strokeWeight 2
-			@sketch.stroke @markerColor[0], @markerColor[1], @markerColor[2], 222
+			alpha = 222
+			if !@goal and @safe
+				alpha -= (@distance-h2) / 1
+				alpha = if alpha > 0 then alpha else 0
+			@sketch.stroke @markerColor[0], @markerColor[1], @markerColor[2], alpha
 			@sketch.noFill()
 			# base of the arrow is 0.01 radians +/- the angle to the tip of the arrow
 			# lazy way of drawing an arrow!
-			x1 = (Math.cos angle+.01) * (dist-20) + w2
-			y1 = (Math.sin angle+.01) * (dist-20) + h2
+			arrowLength = 12
+			x1 = (Math.cos angle+.01) * (dist-arrowLength) + w2
+			y1 = (Math.sin angle+.01) * (dist-arrowLength) + h2
 			x2 = (Math.cos angle) * (dist-5) + w2
 			y2 = (Math.sin angle) * (dist-5) + h2
-			x3 = (Math.cos angle-.01) * (dist-20) + w2
-			y3 = (Math.sin angle-.01) * (dist-20) + h2
+			x3 = (Math.cos angle-.01) * (dist-arrowLength) + w2
+			y3 = (Math.sin angle-.01) * (dist-arrowLength) + h2
 			@sketch.beginShape()
 			@sketch.vertex x1, y1
 			@sketch.vertex x2, y2

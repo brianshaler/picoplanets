@@ -12,7 +12,7 @@ class Chrome
 	
 	mapX: 40
 	mapY: 40
-	mapWidth: 200
+	mapWidth: 250
 	mapHeight: 400
 	
 	starsCounter: 0
@@ -53,8 +53,8 @@ class Chrome
 		
 		for planet in level.planets
 			do (planet) =>
-				x = planet.x
-				y = planet.y * -1
+				x = -planet.x
+				y = planet.y
 				min_x = if min_x == -1 or x - planet.radius < min_x then x - planet.radius else min_x
 				max_x = if max_x == -1 or x + planet.radius > max_x then x + planet.radius else max_x
 				min_y = if min_y == -1 or y - planet.radius < min_y then y - planet.radius else min_y
@@ -69,16 +69,22 @@ class Chrome
 		
 		for planet in level.planets
 			do (planet) =>
-				x = @mapX + paddingLeft + (planet.x - min_x) * scale
-				y = @mapY + paddingTop + (-planet.y - min_y) * scale
+				x = @mapX + paddingLeft + (-planet.x - min_x) * scale
+				y = @mapY + paddingTop + (planet.y - min_y) * scale
 				size = planet.radius*2 * scale
 				@s.noStroke()
 				@s.fill planet.color[0], planet.color[1], planet.color[2]
 				@s.ellipse x, y, size, size
 		
-		x = @mapX + paddingLeft + (level.startingPosition.x - min_x) * scale
-		y = @mapY + paddingTop + (-level.startingPosition.y - min_y) * scale
-		@s.image @s["flying_left"], x-20/2, y-25
+		x = @mapX + paddingLeft + (-level.startingPosition.x - min_x) * scale
+		y = @mapY + paddingTop + (level.startingPosition.y - min_y) * scale
+		imgw = 20 * (0.5 + scale/2)
+		imgh = 25 * (0.5 + scale/2)
+		img = @s.createImage 20, 25, @s.ARGB
+		img.copy @s["flying_left"], 0, 0, 20, 25, 0, 0, 20, 25
+		img.resize imgw, imgh
+		@s.image img, x-imgw*.7, y-imgh
+		#@s["flying_left"].resize()
 	
 	intro: (@s) ->
 		@s.translate(@w/2, @h/2)
@@ -107,7 +113,7 @@ class Chrome
 	
 	startLevel: (@s, level) ->
 		@s.textAlign(@s.CENTER);
-		@drawText level.title, @w/2+100, @h/2 - 24, 24, true
+		@drawText "Level #{level.levelNumber}: "+level.title, @w/2+100, @h/2 - 24, 24, true
 		@drawText level.description, @w/2+100, @h/2, 16, true
 		@s.textAlign(@s.LEFT);
 	

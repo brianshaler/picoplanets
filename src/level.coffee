@@ -1,6 +1,7 @@
 class Level
 	constructor: () ->
 		@galaxy = new Galaxy()
+		@levelNumber = 0
 		@title = ""
 		@description = ""
 		@planets = []
@@ -8,6 +9,10 @@ class Level
 		@startingOxygen = 1000
 		@maxJump = 40
 		@rotation = 0
+		this
+	
+	setLevelNumber: (n) ->
+		@levelNumber = n
 		this
 	
 	setTitle: (t) ->

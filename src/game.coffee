@@ -35,8 +35,41 @@ canvas = document.getElementById 'canvas'
 ctx = canvas.getContext '2d'
 ctx.font = '14px "AudiowideRegular"'
 
+json = """
+[{"title":"Straight Shot","description":"Get to the green planet for your oxygen runs out!\\n\\nHold SPACE to power up your jump meter, and release to jump.\\nBe careful not to jump too high!\\n\\n(hit SPACE to begin)","maxJump":40,"oxygen":1400,"planets":[{"type":"planet","x":0,"y":550,"radius":70}],"startingPosition":{"x":0,"y":480},"goal":{"type":"planet","x":0,"y":100,"radius":80}},
+{"title":"Hopscotch","description":"Use LEFT/RIGHT arrow keys\\nto walk on planets.\\n\\nPlan your jumps carefully!","maxJump":40,"oxygen":1500,"planets":[{"type":"planet","x":800,"y":560,"radius":60},{"type":"planet","x":713,"y":260,"radius":90},{"type":"planet","x":1057,"y":142,"radius":90},{"type":"planet","x":397,"y":582,"radius":66},{"type":"planet","x":1209,"y":598,"radius":62},{"type":"planet","x":407,"y":242,"radius":70},{"type":"planet","x":1439,"y":366,"radius":70},{"type":"planet","x":345,"y":-68,"radius":70},{"type":"planet","x":1301,"y":-120,"radius":70},{"type":"planet","x":785,"y":-110,"radius":70},{"type":"planet","x":1201,"y":-490,"radius":70},{"type":"planet","x":755,"y":-726,"radius":70},{"type":"planet","x":1623,"y":16,"radius":70},{"type":"planet","x":477,"y":-458,"radius":70},{"type":"planet","x":1564,"y":-346,"radius":70}],"startingPosition":{"x":800,"y":500},"goal":{"type":"planet","x":914,"y":-398,"radius":102}},
+{"title":"Sunburn","description":"Watch out for hazards! The sun is HOT!","maxJump":40,"oxygen":1600,"planets":[{"type":"planet","x":-100,"y":-450,"radius":60},{"type":"planet","x":100,"y":-700,"radius":70},{"type":"planet","x":300,"y":-1000,"radius":100},{"type":"planet","x":-50,"y":150,"radius":100},{"type":"sun","x":600,"y":-600,"radius":100}],"startingPosition":{"x":-50,"y":50},"goal":{"type":"planet","x":800,"y":-850,"radius":60}},
+{"title":"Total Eclipse of the Target","description":"This is not a straight shot.\\n\\nUse gravity to your advantage!","maxJump":40,"oxygen":1600,"planets":[{"type":"planet","x":200,"y":-150,"radius":60},{"type":"planet","x":100,"y":700,"radius":70},{"type":"planet","x":-100,"y":-400,"radius":100},{"type":"planet","x":-50,"y":50,"radius":70},{"type":"sun","x":100,"y":300,"radius":100}],"startingPosition":{"x":100,"y":625},"goal":{"type":"planet","x":-100,"y":-950,"radius":60}},
+{"title":"Danger Zone!","description":"Long jumps.\\nSmall targets.\\nBig hazards.\\n\\nOne wrong move and you're\\neither freezing in space\\nor vaporizing on the sun!","maxJump":40,"oxygen":1000,"planets":[{"type":"planet","x":800,"y":540,"radius":60},{"type":"sun","x":810,"y":-242,"radius":110},{"type":"planet","x":1073,"y":-739,"radius":96},{"type":"planet","x":431,"y":-715,"radius":98},{"type":"planet","x":669,"y":85,"radius":38},{"type":"planet","x":994,"y":41,"radius":34},{"type":"planet","x":1192,"y":-317,"radius":70},{"type":"planet","x":324,"y":-95,"radius":52},{"type":"planet","x":429,"y":-387,"radius":50},{"type":"planet","x":653,"y":-992,"radius":56},{"type":"planet","x":28,"y":-635,"radius":56},{"type":"planet","x":984,"y":-1094,"radius":66},{"type":"planet","x":1447,"y":-751,"radius":54}],"startingPosition":{"x":800,"y":480},"goal":{"type":"planet","x":802,"y":-456,"radius":32}}]
+"""
+levelData = JSON.parse(json)
+levels = []
 
-# set up Levels
+
+i = 0
+for l in levelData
+	do (l) =>
+		planets = []
+		for p in l.planets
+			do (p) =>
+				if p.type == "sun"
+					planets.push new Sun p.x, p.y, p.radius
+				else
+					planets.push new Planet p.x, p.y, p.radius
+		
+		levels.push (new Level()).setLevelNumber(++i)
+			.setTitle(l.title)
+			.setDescription(l.description)
+			.setStageSize(w, h)
+			.setPlayer(player)
+			.setPlanets(planets)
+			.setGoal(new Planet l.goal.x, l.goal.y, l.goal.radius)
+			.setPosition(x: l.startingPosition.x, y: l.startingPosition.y)
+			.setOxygen(if l.oxygen? then l.oxygen else 1000)
+			.setJump(if l.jump? then l.jump else 40)
+			
+###
+# set up Levels (the old way)
 levels = [
 	(new Level()).setTitle("Level 1: Hopscotch")
 		.setDescription("Get to the green planet for your oxygen runs out!\n\nUse LEFT/RIGHT arrow keys to walk around on planets.\n\nHold SPACE to jump, but watch the jump meter.\nJump too high, and you'll drift off into space!\n\n(click here or hit SPACE to begin)")
@@ -84,6 +117,7 @@ levels = [
 		).setPosition(x: 100, y: -625).setOxygen(1600)
 		.setJump(40)
 ]
+###
 window.levels = levels
 
 
